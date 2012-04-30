@@ -5,7 +5,8 @@ from django.conf import settings
 from django.db.models.signals import post_init, post_save, pre_save
 from django.core.mail import EmailMessage
 from models import *
-import logging
+from django.template import Context, Template
+import logging, mimetypes, re
 
 mailto_error = 'matteo.atti@aderit.it'
 sender_error = 'error@amail.it'
@@ -26,13 +27,26 @@ def SendTypeMail(kwargs):
     txt_body = mail.body
     subj = mail.subject
     sender = mail.mail_sender
-    kwargs.pop('type')
-    kwargs.pop('mailto')
-    txt = str(txt_body) % kwargs
-    #logging.error(txt)
+    attachments = mail.attachments.all()
+    if len(attachments) > 0:
+	mail_attach = True
+    else:
+	mail_attach = False
+    #kwargs.pop('type')
+    #kwargs.pop('mailto')
+    #txt = str(txt_body) % kwargs
+    t = Template(txt_body)
+    c = Context(kwargs)
+    txt = t.render(c)
     try:
-        EmailMessage(subj, txt, sender, 
-		    [mailto]).send()
+        tosend = EmailMessage(subj, txt, sender, 
+		    [mailto])
+        tosend.content_subtype = mail.content_subtype
+        if mail_attach:
+            for i in attachments:
+                content_type = mimetypes.guess_type(i.attachment.path)[0]
+		tosend.attach(i.attachment.name, i.attachment.read(), content_type)
+	tosend.send()
         return True
     except Exception, e:
         txt = e

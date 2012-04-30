@@ -3,6 +3,9 @@ from django.contrib import admin
 from models import *
 from django.contrib.admin.widgets import AdminDateWidget
 
+class AttachAdmin(admin.ModelAdmin):
+    list_display = ['attachment']
+
 class SendMailAdmin(admin.ModelAdmin):
     list_display = ['id','type_mail', 'subject', 'mail_sender']
     list_editable = ('type_mail','subject','mail_sender')
@@ -10,4 +13,5 @@ class SendMailAdmin(admin.ModelAdmin):
     search_fields = ['type_mail', 'subject','mail_sender']
 
 admin.site.register(SendMail, SendMailAdmin)
+admin.site.register(Attach, AttachAdmin)
 
