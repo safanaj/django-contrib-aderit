@@ -1,0 +1,9 @@
+#!/usr/bin/make -f
+include /usr/share/python/python.mk
+
+#override_dh_auto_install:
+#	NO_CHECK_MODULES=1 python setup.py install --root=$(CURDIR)/debian/tmp/ --install-layout=deb --no-compile
+
+%:
+	dh $@
+

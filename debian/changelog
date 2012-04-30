@@ -1,0 +1,6 @@
+django-contrib-aderit (1.0) stable; urgency=low
+
+  *  Initial Package with only send_mail
+
+ -- Matteo Atti <matteo.atti@aderit.it>  Mon, 30 Apr 2012 11:53:35 +0200
+
