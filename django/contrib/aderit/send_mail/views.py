@@ -9,7 +9,7 @@ from django.template import Context, Template
 import logging, mimetypes, re
 
 mailto_error = 'matteo.atti@aderit.it'
-sender_error = 'error@amail.it'
+sender_error = 'error@sendmail.it'
 subj_error = 'SendMail Error'
 
 def SendTypeMail(kwargs):
