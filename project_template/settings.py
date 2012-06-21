@@ -150,6 +150,7 @@ INSTALLED_APPS = (
     'django.contrib.admindocs',
     'django.contrib.webdesign',
     'django_extensions',
+    'south',
 
     'django.contrib.aderit.generic_utils',
     #'django.contrib.aderit.send_mail',
