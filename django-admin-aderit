@@ -10,6 +10,10 @@ case "$CMD" in
 	cp -rf /usr/share/python-django-contrib-aderit/project_template "$NAME"
 	SECRET=`pwgen -s -y 54 1 | sed -e "s_[\"']_+_g"`
 	sed -i -e "s,@PROJECT@,$NAME,g" -e "s'@SECRET@'$SECRET'g" "$NAME"/settings.py
+	touch "$NAME"/__init__.py
+	echo "#!/bin/sh" > "$NAME"/run.sh
+	echo "export DJANGO_SETTINGS_MODULE=$NAME.settings ; export PYTHONPATH=`pwd` ; django-admin \$@" >> "$NAME"/run.sh
+	chmod +x "$NAME"/run.sh
 	echo "Creato progetto in $NAME"
 	;;
     startapp)

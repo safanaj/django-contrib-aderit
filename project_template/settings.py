@@ -6,7 +6,7 @@ import os
 
 gettext = lambda s: s
 
-PROJECT_PATH = os.path.abspath(os.parh.dirname(__file__))
+PROJECT_PATH = os.path.abspath(os.path.dirname(__file__))
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG

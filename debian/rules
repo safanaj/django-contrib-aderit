@@ -6,7 +6,7 @@ export DH_VERBOSE = 1
 #	NO_CHECK_MODULES=1 python setup.py install --root=$(CURDIR)/debian/tmp/ --install-layout=deb --no-compile
 
 override_dh_pysupport:
-	dh_pysupport
+	dh_pysupport -X project_template
 	cp -rf django/contrib/aderit/generic_utils/templates django/contrib/aderit/generic_utils/templatetags debian/python-django-contrib-aderit/usr/share/pyshared/django/contrib/aderit/generic_utils/
 
 override_dh_install:
