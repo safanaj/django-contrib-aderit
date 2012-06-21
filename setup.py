@@ -1,6 +1,6 @@
 from distutils.core import setup
 
-setup(name='ContribAderit',
+setup(name='DjangoContribAderit',
 	version='1.1',
 	description='Collection of Aderit tools for Django',
 	author='Matteo Atti',

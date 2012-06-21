@@ -1,0 +1,19 @@
+#!/usr/sh
+set -e
+
+CMD="$1"
+NAME="2"
+
+case "$CMD" in
+    startproject)
+	test -n "$NAME" || exit 1
+	cp -rf /usr/share/python-django-contrib-aderit/project_template "$NAME"
+	SECRET=`pwgen -s -y 54 1 | sed -e "s_[\"']_+_g"`
+	sed -i -e "s,@PROJECT@,$NAME,g" -e "s'@SECRET@'$SECRET'g" "$NAME"/settings.py
+	echo "Creato progetto in $NAME"
+	;;
+    startapp)
+	echo "AAAAAHHHHHHHHHH"
+	;;
+esac
+

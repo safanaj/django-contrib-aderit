@@ -1,3 +1,10 @@
+django-contrib-aderit (1.2) unstable; urgency=low
+
+  * Added project_template for scaffolding
+  * Added django-admin-aderit sh script
+
+ -- Matteo Atti <matteo.atti@aderit.it>  Thu, 21 Jun 2012 17:19:23 +0200
+
 django-contrib-aderit (1.1) stable; urgency=low
 
   *  Added generic_utils first version
