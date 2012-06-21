@@ -2,7 +2,7 @@
 set -e
 
 CMD="$1"
-NAME="2"
+NAME="$2"
 
 case "$CMD" in
     startproject)
