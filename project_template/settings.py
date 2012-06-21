@@ -173,8 +173,7 @@ LOGGING = {
             'level': 'ERROR',
             'filters': ['require_debug_false'],
             'class': 'django.utils.log.AdminEmailHandler'
-        }
-
+        },
         'console': {'class': 'logging.StreamHandler'},
         'syslog': {'class': 'logging.handlers.SysLogHandler'},
 
