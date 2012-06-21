@@ -1,4 +1,4 @@
-#!/usr/sh
+#!/bin/sh
 set -e
 
 CMD="$1"
@@ -15,5 +15,8 @@ case "$CMD" in
     startapp)
 	echo "AAAAAHHHHHHHHHH"
 	;;
+    *)
+	echo "Necessario un argomento (startproject <NOMEPROGETTO>)"
+	exit 1
+	;;
 esac
-
