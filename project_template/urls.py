@@ -1,4 +1,5 @@
-from django.conf.urls import patterns, include, url
+#from django.conf.urls.defaults import patterns, include, url
+from django.conf.urls.defaults import *
 from django.views.generic import TemplateView, ListView, DetailView
 from django.conf import settings
 
