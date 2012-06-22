@@ -1,1 +1,23 @@
 {% extends "base.html" %}
+{% load i18n webdesign %}
+
+{% block title %}
+Titolo Index
+{% endblock %}
+
+{% block content %}
+
+<div class="row">
+                <div class="span6">
+                        <h2 class="under-head" style="text-align:center;"><a href="/">{% trans "LOREM IPSUM" %}</a></h2>
+                        <p style="text-align:justify;">{% lorem %}</p>
+                        <p style="text-align:center;"><a class="btn" href="/">{% trans "Lorem Ipsum" %} &raquo;</a></p>
+                </div>
+                <div class="span6">
+                        <h2 class="under-head" style="text-align:center;"><a href="/">{% trans "LOREM IPSUM" %}</a></h2>
+                        <p style="text-align:justify;">{% lorem %}</p>
+                        <p style="text-align:center;"><a class="btn" href="/">{% trans "Lorem Ipsum" %} &raquo;</a></p>
+                </div>
+</div> <!-- FINE ROW -->
+
+{% endblock %}

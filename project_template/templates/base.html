@@ -1,5 +1,50 @@
+{% load i18n %}
 <!DOCTYPE html>
 <html>
-  <head></head>
-  <body></body>
+  <head>
+    <title>{% block title %}{% endblock %}</title>
+    <meta description="" />
+    <meta keywords="" />
+    <meta author="" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    {{form.media}}{% load adminmedia %}
+    <script type="text/javascript">
+      window.__admin_media_prefix__ = "{% filter escapejs %}{% admin_media_prefix %}{% endfilter %}";
+    </script>
+    <link href="{{STATIC_URL}}css/bootstrap.min.css" rel="stylesheet" />
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <script type="text/javascript" src="/jsi18n/"></script>
+    <script src="http://code.jquery.com/jquery-latest.min.js" type="text/javascript"></script>
+    <link  href="{{STATIC_URL}}css/style.css" rel="stylesheet" type="text/css"/>
+    {% block extra-head %}{% endblock %}
+  </head>
+  <body>
+    <div class="container">
+ 	{% get_current_language as l %}
+	    <a href="?lang=it">IT</a>
+	    <a href="?lang=en">EN</a>
+
+
+       	<div id="header" class="hero-unit">
+         	<p style="text-align:center;"><a id="head" href="/">TITOLO</a></p>
+       	</div> <!-- END hero Unit -->
+
+	<div id="center">
+		{% include "navigation.html" %}
+		{% block content %}{% endblock %}
+        </div> <!-- FINE CENTER -->
+
+        <div style="clear:both;"></div>
+
+        <footer>
+        	<p>{% trans "Sito realizzato da" %} <a href="www.aderit.it" target="blank">Aderit srl</a>, powered by <a href="http://www.djangoproject.com" target="blank">Django</a></p>
+        </footer>
+
+    </div>
+  </body>
 </html>

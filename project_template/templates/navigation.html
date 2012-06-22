@@ -1,0 +1,14 @@
+{% load i18n %}
+<div class="navbar">
+  <div class="navbar-inner" style="background:grey; filter:alpha(opacity=75); -moz-opacity:0.75; -khtml-opacity: 0.75; opacity: 0.75;">
+    <div class="container">
+            <a class="brand" href="/" style="color:white;">Home</a>
+            <ul class="nav">
+                <li {% if request.path == "/" %}class="active"{% endif %}><a style="color:white;" href="#">{% trans "LINK" %}</a></li>
+                <li><a style="color:white;" href="#">{% trans "LINK" %}</a></li>
+            </ul>
+    </div>
+  </div>
+</div>
+
+
