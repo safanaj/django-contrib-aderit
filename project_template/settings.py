@@ -111,9 +111,9 @@ MIDDLEWARE_CLASSES = (
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
 
     #'django.middleware.locale.LocaleMiddleware',
-    #'django.contrib.aderit.generic_utils.langMiddleware.SessionBasedLocaleMiddleware'
-    #'django.contrib.aderit.generic_utils.currentUserMiddleware.LocalUserMiddleware'
-    #'django.contrib.aderit.generic_utils.mobileMiddleware.ModileDetectionMiddleware'
+    #'django.contrib.aderit.generic_utils.langMiddleware.SessionBasedLocaleMiddleware',
+    #'django.contrib.aderit.generic_utils.currentUserMiddleware.LocalUserMiddleware',
+    #'django.contrib.aderit.generic_utils.mobileMiddleware.MobileDetectionMiddleware',
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = (
@@ -143,6 +143,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.sites',
     'django.contrib.messages',
+    'django.contrib.markup',
     'django.contrib.staticfiles',
     # Uncomment the next line to enable the admin:
     'django.contrib.admin',

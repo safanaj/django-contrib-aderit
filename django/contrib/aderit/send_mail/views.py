@@ -3,10 +3,15 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.conf import settings
 from django.db.models.signals import post_init, post_save, pre_save
-from django.core.mail import EmailMessage
+from django.core.mail import EmailMessage, EmailMultiAlternatives
 from models import *
 from django.template import Context, Template
 import logging, mimetypes, re
+import string
+from django.contrib.aderit.send_mail.utils import send_email_msg
+
+
+logger = logging.getLogger("django.debug")
 
 mailto_error = 'matteo.atti@aderit.it'
 sender_error = 'error@sendmail.it'
@@ -16,41 +21,28 @@ def SendTypeMail(kwargs):
     """
     obbligatori: kwargs['type'], kwargs['mailto']
     """
-    logging.error(kwargs)
+    logger.info(kwargs)
     tipo = kwargs['type']
     try:
         mail = SendMail.objects.get(type_mail=tipo) 
     except SendMail.DoesNotExist:
-        logging.error("Not found type")
+        logger.error("Not found type")
         return False
     mailto = kwargs['mailto']
-    txt_body = mail.body
+    body_txt = mail.body_txt
+    body_html = mail.body_html
+    if body_html:
+        alternatives=[(body_html,'text/html')]
+    else:
+	alternatives=None
     subj = mail.subject
     sender = mail.mail_sender
     attachments = mail.attachments.all()
-    if len(attachments) > 0:
-	mail_attach = True
+    if len(attachments) == 0:
+	attachments = None
     else:
-	mail_attach = False
-    #kwargs.pop('type')
-    #kwargs.pop('mailto')
-    #txt = str(txt_body) % kwargs
-    t = Template(txt_body)
-    c = Context(kwargs)
-    txt = t.render(c)
-    try:
-        tosend = EmailMessage(subj, txt, sender, 
-		    [mailto])
-        tosend.content_subtype = mail.content_subtype
-        if mail_attach:
-            for i in attachments:
-                content_type = mimetypes.guess_type(i.attachment.path)[0]
-		tosend.attach(i.attachment.name, i.attachment.read(), content_type)
-	tosend.send()
-        return True
-    except Exception, e:
-        txt = e
-        EmailMessage(subj_error, txt, sender_error,
-                    [mailto_error]).send()
-        return False
+	logger.info(attachments)
+    # funzione che richiama utils.py e invoca send_email_msg con i parametri corretti
+
+    return send_email_msg(subject=subj, body=body_txt, to=mailto, alternatives=alternatives, attachments=attachments)
 
