@@ -1,7 +1,7 @@
 from distutils.core import setup
 
 setup(name='DjangoContribAderit',
-	version='1.1',
+	version='1.2',
 	description='Collection of Aderit tools for Django',
 	author='Matteo Atti',
 	author_email='matteo.atti@aderit.it',
