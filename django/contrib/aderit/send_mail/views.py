@@ -39,7 +39,7 @@ def SendTypeMail(kwargs):
     sender = mail.mail_sender
     attachments = mail.attachments.all()
     if len(attachments) == 0:
-	attachments = None
+	attachments = []
     else:
 	logger.info(attachments)
 
