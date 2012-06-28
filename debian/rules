@@ -7,7 +7,8 @@ export DH_VERBOSE = 1
 
 override_dh_pysupport:
 	dh_pysupport -X project_template
-	cp -rf django/contrib/aderit/generic_utils/templates django/contrib/aderit/generic_utils/templatetags debian/python-django-contrib-aderit/usr/share/pyshared/django/contrib/aderit/generic_utils/
+	#cp -rf django/contrib/aderit/generic_utils/templates django/contrib/aderit/generic_utils/templatetags debian/python-django-contrib-aderit/usr/share/pyshared/django/contrib/aderit/generic_utils/
+	#cp -rf django/contrib/aderit/access_account/templates debian/python-django-contrib-aderit/usr/share/pyshared/django/contrib/aderit/access_account/
 
 override_dh_install:
 	dh_testdir

@@ -153,8 +153,13 @@ INSTALLED_APPS = (
     'django_extensions',
     'south',
 
+    #'dajax',
+    #'dajaxice',
+    
     'django.contrib.aderit.generic_utils',
     #'django.contrib.aderit.send_mail',
+    #'captcha',
+    #'django.contrib.aderit.access_account',
 )
 
 # A sample logging configuration. The only tangible logging
@@ -203,7 +208,11 @@ LOGGING = {
 #SESSION_SAVE_EVERY_REQUEST = True
 #LOGIN_URL = "/access"
 #LOGIN_REDIRECT_URL
+#ACCESS_ACCOUNT_USE_CAPTCHA = False
 
+#DAJAXICE_MEDIA_PREFIX="dajaxice"
+
+#CAPTCHA_FONT_SIZE = 50
 
 ### other settings to override
 

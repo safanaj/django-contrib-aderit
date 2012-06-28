@@ -7,6 +7,10 @@ from django.conf import settings
 from django.contrib import admin
 admin.autodiscover()
 
+#from dajaxice.core import dajaxice_autodiscover
+#dajaxice_autodiscover()
+
+
 urlpatterns = patterns('',
     url(r'^jsi18n/(?P<packages>\S+?)/$', 'django.views.i18n.javascript_catalog'),
 
@@ -23,4 +27,8 @@ urlpatterns = patterns('',
         {'show_indexes':True, 'document_root': settings.MEDIA_ROOT}),
     url(r'^robots.txt/', TemplateView.as_view(template_name='robots.txt')),
     url(r'^$', TemplateView.as_view(template_name='index.html')),
+
+
+    #(r'^captcha/', include('captcha.urls')),
+    #(r'^%s/' % settings.DAJAXICE_MEDIA_PREFIX, include('dajaxice.urls')),
 )

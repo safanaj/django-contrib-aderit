@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% load dajaxice_templatetags markup %}
+
+{% block extra-head %}
+
+{% dajaxice_js_import %}
+
+{% endblock %}
+
+{% block content %}
+
+<div id="index">
+
+<div id="profile">
+</div>
+<p style="font-size:14px"><a href="/access/chprofile/#navigazione">MODIFICA PROFILO</a></p>
+<p style="font-size:14px"><a href="/access/chpsw/#navigazione">MODIFICA PASSWORD</a></p>
+<br/>
+<div id="descrizione">
+<table class="table table-striped table-bordered">
+<thead><th class="profile-left"><p><b><u>Dati Utente</u></b></p></th></thead>
+<tr><td class="profile-left"><p><b>USERNAME:</b></p></td><td class="profile-right"><p>{{request.user.username}}</p></td></tr>
+<tr><td class="profile-left"><p><b>NOME:</b></p></td><td class="profile-right"><p>{{ request.user.first_name}}</p></td></tr>
+<tr><td class="profile-left"><p><b>COGNOME:</b></p></td><td class="profile-right"><p>{{ request.user.last_name }}</p></tr>
+<tr><td class="profile-left"><p><b>EMAIL:</b></p></td><td class="profile-right"><p>{{account.user.email}}</p></td></tr>
+<tr><td class="profile-left"><p><b>TELEFONO FISSO:</b></p></td><td class="profile-right"><p>{{account.phone}}</p></td></tr>
+<tr><td class="profile-left"><p><b>TELEFONO MOBILE:</b></p></td><td class="profile-right"><p>{{account.mobile_phone}}</p></td></tr>
+<tr><td class="profile-left"><p><b>RAGIONE SOCIALE:</b></p></td><td class="profile-right"><p>{{account.company}}</p></td></tr>
+{% if account.address %}<tr><td class="profile-left"><p><b>INDIRIZZO FATTURAZIONE:</b></p></td><td class="profile-right"><p>{{account.address}}</p></td></tr>{% endif %}
+{% if account.cap %}<tr><td class="profile-left"><p><b>CAP:</b></p></td><td class="profile-right"><p>{{account.cap}}</p></td></tr>{% endif %}
+{% if account.location %}<tr><td class="profile-left"><p><b>LOCALITA':</b></p></td><td class="profile-right"><p>{{account.location}}</p></td></tr>{% endif %}
+{% if account.paese %}<tr><td class="profile-left"><p><b>PAESE:</b></p></td><td class="profile-right"><p>{{account.paese}}</p></td></tr>{% endif %}
+{% if account.partita_iva %}<tr><td class="profile-left"><p><b>P.IVA/C.F.:</b></p></td><td class="profile-right"><p>{{account.partita_iva}}</p></td></tr>{% endif %}
+</table>
+<br/>
+<br/>
+</div>
+{% endblock %}
