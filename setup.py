@@ -15,7 +15,8 @@ def get_data_files():
         dirp = p.replace('.','/')
         founds = os.popen2("find %s -type f -name '*.html'" % dirp)[1].read().split()
         if len(founds) > 0:
-            _data_files_.append((os.path.join(get_python_lib(), dirp, 'templates'), founds))
+            #_data_files_.append((os.path.join(get_python_lib(), dirp, 'templates', os.path.basename(dirp)), founds))
+            _data_files_.append((os.path.join(get_python_lib(), os.path.dirname(founds[0])), founds))
     return _data_files_
 
 setup(name='DjangoContribAderit',
