@@ -1,32 +1,29 @@
 from distutils.core import setup
+from distutils.sysconfig import get_python_lib
+import os
+
+PKGS = ['django.contrib.aderit',
+        'django.contrib.aderit.send_mail',
+        'django.contrib.aderit.access_account',
+        'django.contrib.aderit.generic_utils',
+        'django.contrib.aderit.generic_utils.templatetags']
+
+def get_data_files():
+    _data_files_ = []
+    for p in PKGS:
+        founds = []
+        dirp = p.replace('.','/')
+        founds = os.popen2("find %s -type f -name '*.html'" % dirp)[1].read().split()
+        if len(founds) > 0:
+            _data_files_.append((os.path.join(get_python_lib(), dirp, 'templates'), founds))
+    return _data_files_
 
 setup(name='DjangoContribAderit',
       version='1.3',
       description='Collection of Aderit tools for Django',
       author='Matteo Atti',
       author_email='matteo.atti@aderit.it',
-      packages=['django.contrib.aderit',
-                'django.contrib.aderit.send_mail',
-                'django.contrib.aderit.access_account',
-                'django.contrib.aderit.generic_utils',
-                'django.contrib.aderit.generic_utils.templatetags'],
-      # package_data={'django.contrib.aderit.access_account':['templates/*.html'],
-      #               'django.contrib.aderit.generic_utils':['templates/*.html'],
-      #               },
-      data_files=[
-        ('share/pyshared/django/contrib/aderit/generic_utils/templates',
-         ['django/contrib/aderit/generic_utils/templates/tags/last_logins.html',
-          'django/contrib/aderit/generic_utils/templates/tags/online_users.html',
-          'django/contrib/aderit/generic_utils/templates/tags/last_registers.html']),
-        ('share/pyshared/django/contrib/aderit/access_account/templates',
-         ['django/contrib/aderit/access_account/templates/access_account/chprofile.html',
-          'django/contrib/aderit/access_account/templates/access_account/post_creation.html',
-          'django/contrib/aderit/access_account/templates/access_account/profile.html',
-          'django/contrib/aderit/access_account/templates/access_account/forgotpsw.html',
-          'django/contrib/aderit/access_account/templates/access_account/chpsw.html',
-          'django/contrib/aderit/access_account/templates/access_account/forgotpswreset.html',
-          'django/contrib/aderit/access_account/templates/access_account/access_accountcontrol.html'
-          ])
-        ],
+      packages=PKGS,
+      data_files=get_data_files(),
       requires=['Django (>=1.3)']
 )
