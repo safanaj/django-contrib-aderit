@@ -12,12 +12,12 @@ case "$CMD" in
 	sed -i -e "s,@PROJECT@,$NAME,g" -e "s'@SECRET@'$SECRET'g" "$NAME"/settings.py
 	touch "$NAME"/__init__.py
 	echo "#!/bin/sh" > "$NAME"/run.sh
-	echo "export DJANGO_SETTINGS_MODULE=$NAME.settings ; export PYTHONPATH=`pwd` ; django-admin \$@" >> "$NAME"/run.sh
+	echo "export DJANGO_SETTINGS_MODULE=$NAME.settings ; export PYTHONPATH=`pwd`:`pwd`/$NAME ; django-admin \$@" >> "$NAME"/run.sh
 	chmod +x "$NAME"/run.sh
 	echo "Creato progetto in $NAME"
 	;;
     startapp)
-	echo "AAAAAHHHHHHHHHH"
+	echo "Da implementare ancora.. Wait!!!"
 	;;
     *)
 	echo "Necessario un argomento (startproject <NOMEPROGETTO>)"
