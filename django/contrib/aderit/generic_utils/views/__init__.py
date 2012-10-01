@@ -24,5 +24,5 @@ class GenericUtilView(View):
                 setattr(self, k, kwargs.get(k))
 
     def dispatch(self, request, *args, **kwargs):
-        self._setup_attrs(**self.kwargs)
+        self._setup_attrs(**kwargs)
         return super(GenericUtilView, self).dispatch(request, *args, **kwargs)
