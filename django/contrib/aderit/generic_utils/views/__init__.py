@@ -12,3 +12,8 @@ def external_view(request, target):
 ## url(r'^offsite/(?P<target>.+)$', external_view),
 ## )
 
+from autologin import AutoLoginView
+
+
+__all__ = ['external_view',
+           'AutoLoginView']
