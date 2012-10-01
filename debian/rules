@@ -29,7 +29,7 @@ git-orig-source:
 	mkdir $(pn)-$(ov)
 	git archive --format=tar HEAD | ( cd $(pn)-$(ov) ; tar -xf - )
 	-rm -rf $(pn)-$(ov)/debian
-	tar -cjf ../$(pn)_$(ov).orig.tar.bz2 $(pn)-$(ov)
+	tar -cjf ../$(pn)_$(ov).tar.bz2 $(pn)-$(ov)
 	-rm -rf $(pn)-$(ov)
 
 %:
