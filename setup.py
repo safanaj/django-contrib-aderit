@@ -21,7 +21,7 @@ def get_data_files():
     return _data_files_
 
 setup(name='DjangoContribAderit',
-      version='1.3.3',
+      version='1.3.4',
       description='Collection of Aderit tools for Django',
       author='Matteo Atti',
       author_email='matteo.atti@aderit.it',
