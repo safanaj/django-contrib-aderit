@@ -62,7 +62,7 @@ class AutoLoginView(View):
 
     def __init__(self, **kwargs):
         super(AutoLoginView, self).__init__(**kwargs)
-        if hasattr(self, 'hash_func_name'):
+        if getattr(self, 'hash_func_name', None) is not None:
             self._check_and_set_hash_func(self.hash_func_name)
         else:
             self._check_and_set_hash_func(HASH_FUNC_NAME)
