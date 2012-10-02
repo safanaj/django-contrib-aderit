@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib import admin
+from django.contrib.aderit.generic_utils.autologin.models import AutoLoginCodeModel
 from django.contrib.aderit.generic_utils.export_as_csv_action import export_as_csv_action
 import logging
 
