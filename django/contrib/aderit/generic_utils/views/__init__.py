@@ -12,17 +12,16 @@ def external_view(request, target):
 ## url(r'^offsite/(?P<target>.+)$', external_view),
 ## )
 
-from autologin import AutoLoginView
-
 class GenericUtilView(View):
 
     force_setup_attrs = False
 
-    def _setup_attrs(self, **kwargs):
+    def setup_attrs(self, force=False, **kwargs):
         for k in kwargs.keys():
-            if self.force_setup_attrs or hasattr(self, k):
+            if force or self.force_setup_attrs or hasattr(self, k):
                 setattr(self, k, kwargs.get(k))
 
     def dispatch(self, request, *args, **kwargs):
-        self._setup_attrs(**kwargs)
+        self.setup_attrs(**kwargs)
         return super(GenericUtilView, self).dispatch(request, *args, **kwargs)
+

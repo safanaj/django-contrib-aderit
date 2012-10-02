@@ -7,6 +7,7 @@ PKGS = ['django.contrib.aderit',
         'django.contrib.aderit.access_account',
         'django.contrib.aderit.generic_utils',
         'django.contrib.aderit.generic_utils.views',
+        'django.contrib.aderit.generic_utils.autologin',
         'django.contrib.aderit.generic_utils.templatetags']
 
 def get_data_files():
@@ -21,7 +22,7 @@ def get_data_files():
     return _data_files_
 
 setup(name='DjangoContribAderit',
-      version='1.3.4',
+      version='1.3.5',
       description='Collection of Aderit tools for Django',
       author='Matteo Atti',
       author_email='matteo.atti@aderit.it',
