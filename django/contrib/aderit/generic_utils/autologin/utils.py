@@ -1,5 +1,7 @@
 from django.contrib.aderit.generic_utils.autologin.models import AutoLoginCodeModel
+from django.contrib.aderit.generic_utils.autologin.views import make_hash_code
 import logging
+import hashlib
 import random
 import string
 
@@ -19,6 +21,7 @@ def gen_autologin_rand_code(modeladmin, request, queryset):
 gen_autologin_rand_code.short_description = "Generate autologin codes using random of 50 bytes"
 
 def _gen_hash_code(modeladmin, request, queryset):
+    from django.conf import settings
     use_secret = getattr(settings, 'AUTOLOGIN_USE_SECRET_KEY', True)
     secret = getattr(settings, 'SECRET_KEY', '')
     hash_func_name = getattr(settings, 'AUTOLOGIN_HASH_FUNC_NAME', 'md5')
@@ -45,6 +48,7 @@ _gen_hash_code.short_description = "Generate autologin codes using hashlib"
 def _add_action_to_admin_user(action_func=None):
     from django.contrib.auth.admin import UserAdmin
     from django.contrib import admin 
+    from django.contrib.auth.models import User
     if not callable(action_func):
         logger.debug("Nothing to add to UserAdmin actions: %s", action_func)
         return
@@ -58,6 +62,6 @@ def add_admin_auth_user_action(action_func=None):
     usually called after admin.autodiscover() in urls.py
     """
     if action_func is None:
-        action_func=_gen_hash_code
+        action_func = _gen_hash_code
     _add_action_to_admin_user(action_func=action_func)
 
