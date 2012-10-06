@@ -226,7 +226,7 @@ try:
             if isinstance(locals()[varname.split('ADDITIONAL_')[1]], dict):
                 dict.update(locals()[varname.split('ADDITIONAL_')[1]], getattr(project_settings_module, varname))
             if isinstance(locals()[varname.split('ADDITIONAL_')[1]], (list,tuple)):
-                locals()[varname.split('ADDITIONAL_')[1]] += getattr(project_settings_module, varname))
+                locals()[varname.split('ADDITIONAL_')[1]] += getattr(project_settings_module, varname)
         else:
             locals()[varname] = getattr(project_settings_module, varname)
 except ImportError:
