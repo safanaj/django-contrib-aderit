@@ -8,8 +8,8 @@ pn=$(shell dpkg-parsechangelog | grep ^Source | cut -d' ' -f2)
 #override_dh_auto_install:
 #	NO_CHECK_MODULES=1 python setup.py install --root=$(CURDIR)/debian/tmp/ --install-layout=deb --no-compile
 
-override_dh_pysupport:
-	dh_pysupport -X project_template
+# override_dh_pysupport:
+# 	dh_pysupport -X project_template
 # 	#cp -rf django/contrib/aderit/generic_utils/templates django/contrib/aderit/generic_utils/templatetags debian/python-django-contrib-aderit/usr/share/pyshared/django/contrib/aderit/generic_utils/
 # 	#cp -rf django/contrib/aderit/access_account/templates debian/python-django-contrib-aderit/usr/share/pyshared/django/contrib/aderit/access_account/
 
@@ -23,5 +23,5 @@ override_dh_install:
 	chmod +x debian/python-django-contrib-aderit/usr/bin/django-admin-aderit
 
 %:
-	dh $@
+	dh $@ --with python2
 
