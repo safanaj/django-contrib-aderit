@@ -26,10 +26,12 @@ from django.contrib.auth.models import User, SiteProfileNotAvailable
 from django.contrib.auth.forms import (AuthenticationForm, UserCreationForm, UserChangeForm,
                                        AdminPasswordChangeForm, PasswordChangeForm, PasswordResetForm, SetPasswordForm)
 from django.contrib.auth.views import redirect_to_login
+from django.contrib.auth.tokens import default_token_generator
 
 from django.contrib.aderit.generic_utils.views import GenericUtilView, GenericProtectedView, GenericProtectedUncacheableView
 from django.contrib.aderit.generic_utils.forms import generic_formclass_factory, SortedDict
 from django.contrib.aderit.send_mail.views import SendTypeMail ## to move in utils.py
+from django.contrib.aderit.access_account import _get_model_from_auth_profile_module
 
 ## maybe in CaptchableView
 HAS_CAPTCHA = 'captcha' in settings.INSTALLED_APPS
@@ -320,61 +322,6 @@ class ChangePasswordView(FormView, GenericProtectedUncacheableView, CaptchableVi
     def get(self, request, *args, **kwargs):
         if not self.request.user.is_authenticated():
             return redirect_to_login(self.request.path)
-        return super(AccessAccountChangePasswordView, self).get(request, *args, **kwargs)
-
-    def form_valid(self, form):
-        form.save()
-        return TemplateResponse(self.request, self.change_done_template_name)
-
-################## Without Form Views
-class AccessAccountLogoutView(TemplateView):
-    """
-    Class based view, copied from django.contrib.auth.views.logout
-
-    Log out the user and displays 'You are logged out' message.
-    """
-    template_name='registration/logged_out.html'
-    redirect_field_name = REDIRECT_FIELD_NAME
-    redirect_to = None
-    current_app = None
-    next_page = None
-
-    def get(self, request, *args, **kwargs):
-        auth_logout(self.request)
-        self.redirect_to = self.request.REQUEST.get(self.redirect_field_name,
-                                                    self.redirect_to or '')
-        if self.redirect_to:
-            netloc = urlparse(self.redirect_to)[1]
-            # Security check -- don't allow redirection to a different host.
-            if not (netloc and netloc != self.request.get_host()):
-                return HttpResponseRedirect(self.redirect_to)
-
-        if self.next_page is None:
-            current_site = get_current_site(self.request)
-            context = self.get_context_data(site=current_site,
-                                            site_name=current_site.name,
-                                            title=_('Logged out'))
-            return TemplateResponse(self.request, self.template_name, context,
-                                    current_app=self.current_app)
-        else:
-            # Redirect to this page until the session has been cleared.
-            return HttpResponseRedirect(self.next_page or self.request.path)
-
-class AccessAccountDetailView(DetailView, GenericUtilView):
-    slug_field = 'pk'
-
-    def get_object(self):
-        if self.model is None:
-            self.model = _get_model_from_auth_profile_module()
-        if self.kwargs.get('slug', None) is None and self.request.user.is_authenticated():    
-            try:
-                return self.request.user.get_profile()
-            except (self.model.DoesNotExist, AttributeError):
-                return None
-        try:
-            return self.model.objects.get(**{ self.slug_field : self.kwargs.get('slug', None) })
-        except:
-            return None
         return super(ChangePasswordView, self).get(request, *args, **kwargs)
 
     def form_valid(self, form):
@@ -421,7 +368,7 @@ class DetailView(DetailView, GenericUtilView):
     def get_object(self):
         if self.model is None:
             self.model = _get_model_from_auth_profile_module()
-        if self.kwargs.get('slug', None) is None and self.request.user.is_authenticated():    
+        if self.kwargs.get('slug', None) is None and self.request.user.is_authenticated():
             try:
                 return self.request.user.get_profile()
             except (self.model.DoesNotExist, AttributeError):
@@ -472,7 +419,7 @@ class ForgotPasswordView(FormView, CaptchableView):
             for_user.get_profile().save()
             ## we have to send an email using SendMail
             context.update({'protocol': self.protocol_for_link, 'domain': get_current_site(self.request).domain, 'site_name': get_current_site(self.request).name})
-            context.update({'resetpasswordlinkpath': reverse('resetpasswd', kwargs={'token': token})})            
+            context.update({'resetpasswordlinkpath': reverse('resetpasswd', kwargs={'token': token})})
             context_for_mail = { 'type': self.send_mail_type_name, 'mailto': [for_user.email], 'smtp_host': getattr(settings, 'EMAIL_HOST', 'localhost') }
             context_for_mail.update({ for_user.email : context })
 

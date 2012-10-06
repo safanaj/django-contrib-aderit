@@ -11,8 +11,10 @@ Package: python-django-contrib-aderit
 Section: python
 Priority: extra
 Architecture: all
-Depends: ${misc:Depends}, ${python:Depends}, python-django, python-werkzeug, python-south, python-django-dajaxice, python-django-dajax
-Recommends: python-django-simple-captcha
+Depends: ${misc:Depends}, ${python:Depends}, python-django, pwgen,
+ python-werkzeug, python-django-south | python-south,
+ python-django-dajaxice, python-django-dajax
+Recommends: python-django-simple-captcha, python-django-treemenus
 Description: Libreria di strumenti by Aderit
  Library of tools by Aderit
 

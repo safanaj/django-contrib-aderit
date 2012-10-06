@@ -17,6 +17,9 @@ from django.conf import settings
 from django.contrib.auth.models import User, check_password
 
 from account.models import Account
+from django.contrib.auth.tokens import default_token_generator
+
+from django.contrib.aderit.access_account import _get_model_from_auth_profile_module
 
 class TokenBackend(object):
     """
@@ -28,8 +31,11 @@ class TokenBackend(object):
     def authenticate(self, token=None):
         if token is not None:
             try:
-                return Account.objects.get(token=token).user
-            except Account.DoesNotExist:
+                model = _get_model_from_auth_profile_module()
+                user =  model.objects.get(token=token).user
+                if default_token_generator.check_token(user, token):
+                    return user
+            except model.DoesNotExist:
                 return None
         return None
 

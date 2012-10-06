@@ -4,8 +4,12 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+from django.db.models.signals import post_save
+from django.contrib.aderit.access_account import _get_model_from_auth_profile_module
+
 class AccessAccount(models.Model):
     user = models.OneToOneField(User)
+    token = models.CharField(max_length=128, blank=True)
 
     class Meta:
         abstract = True
@@ -80,3 +84,10 @@ class AccessAccount(models.Model):
     @property
     def date_joined(self):
         return self.user.date_joined
+
+def create_access_account(sender, instance, created, **kwargs):
+    if created:
+        model = _get_model_from_auth_profile_module()
+        model(user=instance).save()
+
+post_save.connect(create_access_account, sender=User)

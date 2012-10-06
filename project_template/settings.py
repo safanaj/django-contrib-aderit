@@ -160,7 +160,22 @@ INSTALLED_APPS = (
     #'django.contrib.aderit.send_mail',
     #'captcha',
     #'django.contrib.aderit.access_account',
+    #'account',
 )
+
+# Some frequent used settings
+#SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+#SESSION_COOKIE_AGE = 3600
+#SESSION_SAVE_EVERY_REQUEST = True
+#LOGIN_URL = "/access"
+#LOGIN_REDIRECT_URL
+#ACCESS_ACCOUNT_USE_CAPTCHA = False
+
+#AUTH_PROFILE_MODULE = 'account.Account'
+
+#DAJAXICE_MEDIA_PREFIX="dajaxice"
+
+#CAPTCHA_FONT_SIZE = 50
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
