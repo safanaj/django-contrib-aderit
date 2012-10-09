@@ -1,26 +1,129 @@
 #!/bin/sh
 set -e
 
+oldpwd="$OLDPWD"
+with_git=no
+group_for_share=${SHARE_FOR_GROUP:-tecnici}
+
+usage ()
+{
+    echo "$0 [--with-git] startproject|startapp <NOMEPROGETTO>|<NOMEAPP>"
+    exit $1
+}
+
+check_args ()
+{
+    if test $# -lt 2 -o $# -gt 3 ; then
+	echo "Numero di argomenti sbagliato"
+	usage 1
+    fi
+    case $1 in
+	--with-git) which git 2>&1 1> /dev/null && with_git=yes ;;
+	*) ;;
+    esac
+}
+
+init_git_repo ()
+{
+    cd $1
+    git init --shared=group .
+    echo '*~' >> .gitignore
+    echo '*.pyc' >> .gitignore
+    echo 'django.wsgi' >> .gitignore
+    echo 'run.sh' >> .gitignore
+    echo INSTALL_APACHE_VHOST >> .gitignore
+    echo db_settings.py >> .gitignore
+    echo cms_settings.py >> .gitignore
+    echo local_settings.py >> .gitignore
+    echo 'media/README' >> .gitignore
+    git add .gitignore
+    getent group $group_for_share 2>&1 1>/dev/null
+    if test $? -eq 0 ; then
+	groups | grep -q "$group_for_share"
+	if test $? -eq 0 ; then
+	    chgrp -R $group_for_share .
+	    chmod -R g+w .
+	    find . -type d -print0 | xargs -0 chmod g+s
+	fi
+    fi
+    cd - 2>&1 1> /dev/null
+}
+
+write_install_vh ()
+{
+    cd $1
+    cat <<EOF > INSTALL_APACHE_VHOST
+To enable this site in apache2 server web,
+copy the example below in /etc/apache2/sites-available/$1 ,
+edit it to fit your needs,
+run "a2ensite $1 && /etc/init.d/apache2 reload" as root.
+
+<<<<<<<<<<===== begin of apache2 virtual host example =====>>>>>>>>>>
+<VirtualHost *:80>
+	ServerAdmin <ADMIN EMAIL>
+	ServerName <HTTP URL>
+
+	Alias /media/ `pwd`/media/
+
+        <Directory `pwd`/media/ >
+            Options +MultiViews -Indexes
+            AllowOverride None
+        </Directory>
+
+        Alias /static/ `pwd`/static/
+
+        <Directory `pwd`/static/ >
+            Options +MultiViews -Indexes
+            AllowOverride None
+        </Directory>
+
+	WSGIDaemonProcess web-$1-user user=www-data group=www-data processes=1 threads=15
+	WSGIProcessGroup web-$1-user
+
+	WSGIScriptAlias / `pwd`/django.wsgi
+
+	ErrorLog /var/log/apache2/$1-error.log
+
+	# Possible values include: debug, info, notice, warn, error, crit,
+	# alert, emerg.
+	LogLevel warn
+
+	CustomLog /var/log/apache2/$1-access.log combined
+
+</VirtualHost>
+<<<<<<<<<<===== end of apache2 virtual host =====>>>>>>>>>>
+EOF
+    cd - 2>&1 1> /dev/null
+}
+
+check_args "$@"
+test xyes = x"$with_git" && shift;
+
 CMD="$1"
 NAME="$2"
 
 case "$CMD" in
     startproject)
-	test -n "$NAME" || exit 1
+	test -n "$NAME" || usage 1
 	cp -rf /usr/share/python-django-contrib-aderit/project_template "$NAME"
 	SECRET=`pwgen -s -y 54 1 | sed -e "s_[\"']_+_g"`
 	sed -i -e "s,@PROJECT@,$NAME,g" -e "s'@SECRET@'$SECRET'g" "$NAME"/settings.py
 	touch "$NAME"/__init__.py
 	echo "#!/bin/sh" > "$NAME"/run.sh
-	echo "export DJANGO_SETTINGS_MODULE=$NAME.settings ; export PYTHONPATH=\$(dirname \$(pwd)):\$(pwd) ; django-admin \$@" >> "$NAME"/run.sh
+	echo "export DJANGO_SETTINGS_MODULE=\$(basename \$(pwd)).settings ; export PYTHONPATH=\$(dirname \$(pwd)):\$(pwd) ; django-admin \$@" >> "$NAME"/run.sh
 	chmod +x "$NAME"/run.sh
 	echo "Creato progetto in $NAME"
+	write_install_vh $NAME
+	if test xyes = x"$with_git" ; then
+	    init_git_repo $NAME
+	fi
 	;;
     startapp)
 	echo "Da implementare ancora.. Wait!!!"
 	;;
     *)
-	echo "Necessario un argomento (startproject <NOMEPROGETTO>)"
-	exit 1
+	OLDPWD="$oldpwd"
+	usage 1
 	;;
 esac
+OLDPWD="$oldpwd"
