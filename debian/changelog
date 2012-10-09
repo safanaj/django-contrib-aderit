@@ -1,3 +1,13 @@
+django-contrib-aderit (1.4.0.1) unstable; urgency=low
+
+  * Better django-admin-aderit:
+    - with option to initialize git and setup perms
+    - install a virtual host example for apache2 in project
+  * debian/rules use dh_python2 --skip-private
+     to skip project_template compilation
+
+ -- Marco Bardelli <marco.bardelli@aderit.it>  Wed, 10 Oct 2012 00:04:58 +0200
+
 django-contrib-aderit (1.4.0) veryunstable; urgency=low
 
   * More flexible project_template
