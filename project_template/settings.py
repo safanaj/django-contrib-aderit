@@ -2,12 +2,11 @@
 # vim: set fileencoding=utf-8 :
 
 # Django settings for @PROJECT@ project.
-import os, sys
+import os
 
 gettext = lambda s: s
 
 PROJECT_PATH = os.path.abspath(os.path.dirname(__file__))
-PROJECT_NAME = os.path.basename(PROJECT_PATH)
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -21,7 +20,7 @@ MANAGERS = ADMINS
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3', 
-        'NAME': os.path.join(PROJECT_PATH, '%s.db' % PROJECT_NAME), # Or path to database file if using sqlite3.
+        'NAME': os.path.join(PROJECT_PATH, '@PROJECT@.db'), # Or path to database file if using sqlite3.
         'USER': '',                      # Not used with sqlite3.
         'PASSWORD': '',                  # Not used with sqlite3.
         'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
@@ -125,10 +124,10 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'django.core.context_processors.static',
 )
 
-ROOT_URLCONF = '%s.urls' % PROJECT_NAME
+ROOT_URLCONF = '@PROJECT@.urls'
 
 # Python dotted path to the WSGI application used by Django's runserver.
-WSGI_APPLICATION = '%s.wsgi.application' % PROJECT_NAME
+WSGI_APPLICATION = '@PROJECT@.wsgi.application'
 
 TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
@@ -162,18 +161,6 @@ INSTALLED_APPS = (
     #'captcha',
     #'django.contrib.aderit.access_account',
 )
-
-# Some frequent used settings
-#SESSION_EXPIRE_AT_BROWSER_CLOSE = True
-#SESSION_COOKIE_AGE = 3600
-#SESSION_SAVE_EVERY_REQUEST = True
-#LOGIN_URL = "/access"
-#LOGIN_REDIRECT_URL
-#ACCESS_ACCOUNT_USE_CAPTCHA = False
-
-#DAJAXICE_MEDIA_PREFIX="dajaxice"
-
-#CAPTCHA_FONT_SIZE = 50
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
@@ -215,23 +202,20 @@ LOGGING = {
     }
 }
 
-### adaptable settings to override or add
-from django.utils.importlib import import_module
-project_settings_module_name = "%s.%s_settings" % (PROJECT_NAME, PROJECT_NAME.lower())
-try:
-    import_module(project_settings_module_name)
-    project_settings_module = sys.modules[project_settings_module_name]
-    for varname in getattr(project_settings_module, '__all__', []):
-        if varname.startswith('ADDITIONAL_') and dict.has_key(locals(), varname.split('ADDITIONAL_')[1]):
-            if isinstance(locals()[varname.split('ADDITIONAL_')[1]], dict):
-                dict.update(locals()[varname.split('ADDITIONAL_')[1]], getattr(project_settings_module, varname))
-            if isinstance(locals()[varname.split('ADDITIONAL_')[1]], (list,tuple)):
-                locals()[varname.split('ADDITIONAL_')[1]] += getattr(project_settings_module, varname))
-        else:
-            locals()[varname] = getattr(project_settings_module, varname)
-except ImportError:
-    pass
+# Some frequent used settings
+#SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+#SESSION_COOKIE_AGE = 3600
+#SESSION_SAVE_EVERY_REQUEST = True
+#LOGIN_URL = "/access"
+#LOGIN_REDIRECT_URL
+#ACCESS_ACCOUNT_USE_CAPTCHA = False
+
+#DAJAXICE_MEDIA_PREFIX="dajaxice"
+
+#CAPTCHA_FONT_SIZE = 50
+
 ### other settings to override
+
 try:
     from db_settings import *
 except ImportError:
