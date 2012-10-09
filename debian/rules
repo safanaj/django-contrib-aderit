@@ -22,6 +22,16 @@ override_dh_install:
 	cp -f django-admin-aderit debian/python-django-contrib-aderit/usr/bin
 	chmod +x debian/python-django-contrib-aderit/usr/bin/django-admin-aderit
 
+
+
+git-orig-source:
+	-rm -rf $(pn)-$(ov)
+	mkdir $(pn)-$(ov)
+	git archive --format=tar HEAD | ( cd $(pn)-$(ov) ; tar -xf - )
+	-rm -rf $(pn)-$(ov)/debian
+	tar -cjf ../$(pn)_$(ov).tar.bz2 $(pn)-$(ov)
+	-rm -rf $(pn)-$(ov)
+
 %:
 	dh $@
 
