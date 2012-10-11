@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block content %}
+
+{% if form.errors %}
+<p>Your username and password didn't match. Please try again.</p>
+{% endif %}
+
+<form method="post" action="{% url login %}">{% csrf_token %}
+<table>
+  {{ form.as_table }}
+</table>
+<input type="submit" value="{% trans 'Login' %}" />
+</form>
+
+{% endblock %}
