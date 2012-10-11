@@ -14,7 +14,7 @@
     <form action="" method="post">{% csrf_token %}
 <ul>
     {% for exportable_object in exportable_objects %}
-        <li><input type="checkbox" name="field-{{ exportable_object }}" value="{{ exportable_object }}" />&nbsp;{{ exportable_object }}</li>
+        <li><input type="checkbox" name="field-{{ exportable_object }}" checked="checked" value="{{ exportable_object }}" />&nbsp;{{ exportable_object }}</li>
     {% endfor %}
 </ul>
 
