@@ -16,6 +16,24 @@ django-contrib-aderit (1.3.6) stable; urgency=low
 
  -- Marco Bardelli <mbardelli@tramontana.fondazza.servabit.it>  Mon, 08 Oct 2012 19:47:55 +0200
 
+django-contrib-aderit (1.3.7) stable; urgency=low
+
+  * django-admin-aderit fixed 'pwd' path
+  * settings.py for moving projects more flexible
+  * [fix] double parenthesis in settings.py
+  * [fix] setup.py version 
+
+ -- Matteo Atti <matteo.atti@aderit.it>  Mon, 09 Oct 2012 12:12:55 +0200
+
+django-contrib-aderit (1.3.6) stable; urgency=low
+
+  * Non-maintainer upload.
+  * removed useless git-orig-source target from debian/rules
+  * added python as build-depends-indep
+  * better django-admin-aderit script
+
+ -- Marco Bardelli <mbardelli@tramontana.fondazza.servabit.it>  Mon, 08 Oct 2012 19:47:55 +0200
+
 django-contrib-aderit (1.3.5) unstable; urgency=low
 
   * [autologin] added support to use Model
