@@ -17,7 +17,6 @@ from django.views.generic.detail import DetailView
 from django.views.generic.edit import UpdateView, CreateView, FormView
 from django.utils.translation import ugettext as _
 from django.utils.log import getLogger
-from django.utils.importlib import import_module
 
 from django.contrib.sites.models import get_current_site
 from django.contrib.auth import (authenticate, login as auth_login,
@@ -45,23 +44,6 @@ if HAS_CAPTCHA:
 CAPTCHA_FIELD_CLASS = (HAS_CAPTCHA and CaptchaField) or None
 
 logger = getLogger('aderit.access_account.views')
-
-#from account.models import Account
-def _get_model_from_auth_profile_module():
-    """
-    Get model for UserProfile.
-
-    The call 'request.user.get_profile()' can raise two types of Exceptions:
-       - AttributeError if request.user is anonymous.
-       - <UserProfileModel>.DoesNotExist if UserProfile have to be create yet.
-    """
-    if not hasattr(settings, 'AUTH_PROFILE_MODULE'):
-        exc_txt = "To use AccessAccount views, you need to subclass AccessAccount"
-        exc_txt += " abstract Model and define AUTH_PROFILE_MODULE coerently."
-        raise SiteProfileNotAvailable(_(exc_txt))
-    module_name = "%s.models" % settings.AUTH_PROFILE_MODULE.split('.')[0]
-    module = import_module(module_name)
-    return getattr(module, settings.AUTH_PROFILE_MODULE.split('.')[1])
 
 def _maybe_add_captcha(self, actual_fields):
     if self.use_captcha and HAS_CAPTCHA and self.captcha_field_class is not None:
@@ -381,7 +363,7 @@ class DetailView(DetailView, GenericUtilView):
 class ForgotPasswordView(FormView, CaptchableView):
     success_template_name = 'account/forgot_psw_ok.html'
     send_mail_type_name = 'forgot password'
-    delete_token_after_use = False
+    delete_token_after_use = True
     token = None
     slug_field = 'token'
     success_url = '/'

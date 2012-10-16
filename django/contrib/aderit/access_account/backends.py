@@ -15,8 +15,6 @@
 
 from django.conf import settings
 from django.contrib.auth.models import User, check_password
-
-from account.models import Account
 from django.contrib.auth.tokens import default_token_generator
 
 from django.contrib.aderit.access_account import _get_model_from_auth_profile_module

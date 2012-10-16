@@ -3,6 +3,8 @@
 
 from django.db import models
 from django.contrib.auth.models import User
+from django.db.models.signals import post_save
+from django.contrib.aderit.access_account import _get_model_from_auth_profile_module
 
 from django.db.models.signals import post_save
 from django.contrib.aderit.access_account import _get_model_from_auth_profile_module
