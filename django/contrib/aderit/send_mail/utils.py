@@ -3,18 +3,23 @@ from django.core.mail.backends.smtp import EmailBackend
 from django.template import Context, Template
 import logging, re, mimetypes, os
 
-logger = logging.getLogger("django.debug")
+logger = logging.getLogger("send_email_msg")
 
-def send_email_msg(smtp_host='localhost', smtp_port='25', connection=None, smtp_user='', smtp_passwd='', use_tls=False,
-		   subject='', body='', from_email=None, headers=None, to=None, cc=None, bcc=None, attachments=None, alternatives=None, encoding='utf-8',
-		   send_it=True, in_bulk=False, custom_dict_string=None, chunk_size=None):
+def send_email_msg(smtp_host='localhost', smtp_port=25, connection=None, smtp_user='',
+                   smtp_passwd='', use_tls=False, backend=EmailBackend,
+                   subject='', body='', from_email=None, headers=None, to=None, cc=None, bcc=None,
+                   attachments=None, alternatives=None, encoding='utf-8',
+                   send_it=True, in_bulk=False, custom_dict_string=None, chunk_size=None):
     """
     Wrapper function ... TOWRITE
     """
-    if not connection:
-        smtp_cnx = EmailBackend(host=smtp_host, port=smtp_port, username=smtp_user, password=smtp_passwd, use_tls=use_tls)
-    else:
-        smtp_cnx = connection
+    if send_it:
+        if not connection:
+            smtp_cnx = backend(host=smtp_host, port=smtp_port,
+                               username=smtp_user, password=smtp_passwd,
+                               use_tls=use_tls)
+        else:
+            smtp_cnx = connection
 
     #alternatives deve essere una tupla contenente il mess alternativo html + il mimetype
 
@@ -61,17 +66,18 @@ def send_email_msg(smtp_host='localhost', smtp_port='25', connection=None, smtp_
     
     if in_bulk:
 	if type_dict:
-	    body = Template(body).render(Context(custom_dict))
-	    render_alternatives = []
+            render_subj = Template(subject).render(Context(custom_dict))
+            render_body = Template(body).render(Context(custom_dict))
+            render_alternatives = []
 	    for c,m in alternatives:
-	        render_alternatives.append((Template(c).render(Context(custom_dict)),m))
+                render_alternatives.append((Template(c).render(Context(custom_dict)),m))
         if chunk_size is not None and isinstance(chunk_size, int) and chunk_size > 2:
             dests = []
             while len(bcc) > 0:
                 dests.append(bcc[:chunk_size])
                 del bcc[:chunk_size]
             for bcc in dests:
-                msg = EmailMultiAlternatives(subject=subject, body=body,
+                msg = EmailMultiAlternatives(subject=render_subj, body=render_body,
                                              from_email=from_email, headers=headers,
                                              to=[from_email], cc=None, bcc=bcc,
                                              attachments=attachments,
@@ -80,9 +86,10 @@ def send_email_msg(smtp_host='localhost', smtp_port='25', connection=None, smtp_
                 msg.extra_headers.update({'Precedence':'bulk'})
                 messages.append(msg)
         else:
-            msg = EmailMultiAlternatives(subject=subject, body=body, from_email=from_email,
-                                         headers=headers, to=[from_email],
-                                         cc=None, bcc=bcc, attachments=attachments,
+            msg = EmailMultiAlternatives(subject=render_subj, body=render_body,
+                                         from_email=from_email, headers=headers,
+                                         to=[from_email], cc=None, bcc=bcc,
+                                         attachments=attachments,
                                          alternatives=render_alternatives)
             msg.encoding = encoding
             msg.extra_headers.update({'Precedence':'bulk'})
@@ -90,24 +97,25 @@ def send_email_msg(smtp_host='localhost', smtp_port='25', connection=None, smtp_
     else:
 	recipients = to or [] + cc or [] + bcc or []
 	for r in recipients:
- 	    render_body = body
- 	    render_alternatives = alternatives
+            render_subj = subject
+            render_body = body
+            render_alternatives = alternatives
 	    if type_dict:
-	        render_body = Template(body).render(Context(custom_dict.get(r)))
+                render_subj = Template(subject).render(Context(custom_dict))
+                render_body = Template(body).render(Context(custom_dict.get(r)))
                 logger.debug("Template rendered: %s", render_body)
-		render_alternatives = []
-	 	for c,m in alternatives:
+                render_alternatives = []
+                for c,m in alternatives:
 		    render_alternatives.append((Template(c).render(Context(custom_dict.get(r))),m))
-            msg = EmailMultiAlternatives(subject=subject, body=render_body, from_email=from_email, headers=headers, to=[r], attachments=attachments, alternatives=render_alternatives)
+                    msg = EmailMultiAlternatives(subject=render_subj, body=render_body,
+                                                 from_email=from_email, headers=headers,
+                                                 to=[r], attachments=attachments,
+                                                 alternatives=render_alternatives)
             msg.encoding = encoding
 	    messages.append(msg)
 
     if not send_it:
 	return messages
     else:
-	lenmess = 0
-	for msg in messages:
-            logger.debug("Message for: %s", msg.recipients())
-	    lenmess += msg.send() 
-        return lenmess
+	return smtp_cnx.send_messages(messages)
 
