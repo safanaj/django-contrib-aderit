@@ -1,0 +1,34 @@
+Questa patch va applicata per buildare con debhelper < 9 che non supporta dh_python2 addon (es: su lucid o squeeze)
+Per buildare su lucid o squeeze, eseguire dalla cartella radice del progetto:
+$ patch -p1 <debian/patch_for_lucid.diff && dch -v X.Y.Z "unreleased" && debuild -us -uc
+Nel repo apt non dovrebbero essere uploadati pacchetti buildati con debhelper < 9.
+Usando "dh --with python2" il codice viene installato in una posizione standard compatibile con qualsiasi distro.
+Su lucid e squeeze viene installato nelle gerarchie 'pymodules' incompatibili con versioni + nuove.
+
+diff --git a/debian/rules b/debian/rules
+index b116cd2..c5ca8e5 100755
+--- a/debian/rules
++++ b/debian/rules
+@@ -5,8 +5,13 @@ export DH_VERBOSE = 1
+ ov=$(shell dpkg-parsechangelog | grep ^Version | cut -d' ' -f2 | cut -d'-' -f1)
+ pn=$(shell dpkg-parsechangelog | grep ^Source | cut -d' ' -f2)
+ 
+-override_dh_python2:
+-	dh_python2 --skip-private
++#override_dh_auto_install:
++#	NO_CHECK_MODULES=1 python setup.py install --root=$(CURDIR)/debian/tmp/ --install-layout=deb --no-compile
++
++override_dh_pysupport:
++	dh_pysupport -X project_template
++# 	#cp -rf django/contrib/aderit/generic_utils/templates django/contrib/aderit/generic_utils/templatetags debian/python-django-contrib-aderit/usr/share/pyshared/django/contrib/aderit/generic_utils/
++# 	#cp -rf django/contrib/aderit/access_account/templates debian/python-django-contrib-aderit/usr/share/pyshared/django/contrib/aderit/access_account/
+ 
+ override_dh_install:
+ 	dh_testdir
+@@ -18,5 +23,5 @@ override_dh_install:
+ 	chmod +x debian/python-django-contrib-aderit/usr/bin/django-admin-aderit
+ 
+ %:
+-	dh $@ --with python2
++	dh $@
+ 
