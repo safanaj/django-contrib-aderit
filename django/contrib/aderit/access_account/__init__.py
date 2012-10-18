@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.contrib.auth.models import SiteProfileNotAvailable
 from django.utils.translation import ugettext as _
-from django.utils.importlib import import_module
+from django.db.models.loading import get_model
 
 def _get_model_from_auth_profile_module():
     """
@@ -15,6 +15,5 @@ def _get_model_from_auth_profile_module():
         exc_txt = "To use AccessAccount, you need to subclass AccessAccount"
         exc_txt += " abstract Model and define AUTH_PROFILE_MODULE coerently."
         raise SiteProfileNotAvailable(_(exc_txt))
-    module_name = "%s.models" % settings.AUTH_PROFILE_MODULE.split('.')[0]
-    module = import_module(module_name)
-    return getattr(module, settings.AUTH_PROFILE_MODULE.split('.')[1])
+    app_label, model_name = settings.AUTH_PROFILE_MODULE.split('.')
+    return get_model(app_label, model_name)
