@@ -4,8 +4,13 @@ from django.utils.log import getLogger
 from django.utils.translation import ugettext as _
 
 from django.views.generic import View
-from django.views.decorators.debug import (sensitive_post_parameters,
-                                           sensitive_variables)
+try:
+    from django.views.decorators.debug import (sensitive_post_parameters,
+                                               sensitive_variables)
+except ImportError:
+    has_decorators_debug = False
+else:
+    has_decorators_debug = True
 from django.views.decorators.cache import never_cache, cache_page, cache_control
 from django.views.decorators.csrf import csrf_protect, csrf_exempt
 
@@ -202,14 +207,14 @@ class GenericUtilView(View):
         return response
 
 class GenericProtectedView(GenericUtilView):
-    use_sensitive_post_parameters_decorator = True
+    use_sensitive_post_parameters_decorator = has_decorators_debug
     use_csrf_protect_decorator = True
 
 class GenericUncacheableView(GenericUtilView):
     use_never_cache_decorator = True
 
 class GenericProtectedUncacheableView(GenericUtilView):
-    use_sensitive_post_parameters_decorator = True
+    use_sensitive_post_parameters_decorator = has_decorators_debug
     use_csrf_protect_decorator = True
     use_never_cache_decorator = True
 
