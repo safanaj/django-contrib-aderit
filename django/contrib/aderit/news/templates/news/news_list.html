@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% load i18n markup %}
+
+{% block content %}
+
+{% for news_detail in news_list %}
+
+<h2>{{ news_detail.title }}</h2>
+<p>{{ news_detail.pub_date }}</p>
+<p>{{ news_detail.body|safe }}</p>
+<br/>
+{% endfor %}
+
+{% if is_paginated %}
+{% include "news/paginator.html" %}
+{% endif %}
+
+
+{% endblock %}

@@ -1,0 +1,29 @@
+{% load i18n %}
+        <p align="center">
+            <span class="page-links">
+                {% if page_obj.has_previous %}
+                    <a href="?page=1">&laquo;</a>
+                    <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+                {% else %}
+                    <span>&laquo;</span>
+                    <span>previous</span>
+                {% endif %}
+                <span class="page-current">&nbsp;
+                <select onchange="javascript:location.href='?page=' + this.value ;" style="width:80px;">
+                {% for p in page_obj.paginator.page_range %}
+                <option{% if p == page_obj.number %} selected="selected"{% endif %}>{{p}}</option>
+                {% endfor %}
+                </select>
+                   {# Pagina {{ page_obj.number }} di {{ page_obj.paginator.num_pages }} #}
+                </span>&nbsp;
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}">next</a>
+                    <a href="?page={{ page_obj.paginator.num_pages }}">&raquo;</a>
+                {% else %}
+                    <span>next</span>
+                    <span>&raquo;</span>
+                {% endif %}
+            </span><br/>
+            {#<span>({% trans "Elementi trovati" %}: {{ page_obj.paginator.count }})</span>#}
+        </p>
+

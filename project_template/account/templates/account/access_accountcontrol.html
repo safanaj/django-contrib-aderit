@@ -1,57 +1,28 @@
 {% extends "base.html" %}
-{% load dajaxice_templatetags i18n %}
+{% load i18n %}
 
-{% block extra-head %}
-
-{% dajaxice_js_import %}
-<script type ="text/javascript" src="{{STATIC_URL}}js/jquery.dajax.core.js"></script>
-
-{% if chprofile %}
-<script type="text/javascript">
-$(document).ready(function() {
-	Dajaxice.access_account.chprofilepop(Dajax.process);
-    });
-</script>
-{% endif %}
-
-{% if signup or chprofile %}
-<script type="text/javascript">
-$(document).ready(function() {
-        $('#terminidiv').hide();
-        $('a#termini').click(function () {
-        $('#terminidiv').fadeToggle();
-        $(this).fadeToggle();
-        });
-});
-</script>
-{% endif %}
-
-<script type="text/javascript">
-function nascondiuser() {
-    var input = document.getElementById("id_user");
-    input.setAttribute("type", "hidden");
-};    
-</script>
-
-
+{% block title %}
 {% endblock %}
 
-	{% block content %}
+{% block extra-head %}
+{% endblock %}
+
+
+{% block content %}
 
 <div id="many-form">
 {% if form.errors %}
-<p style="color:red; text-align:center">*INFORMAZIONI MANCANTI OPPURE ERRATE</p><br/>
+<p class="access-error">{% trans "*INFORMAZIONI MANCANTI OPPURE ERRATE" %}</p><br/>
 {% endif %}
 {% if resetpsw %}
-<p style="text-align:center;">Digitare due volte la nuova password.</p><br/>
-<form method="post" action="" id="provaform" style="border:none;">{% csrf_token %}
-        <table id="tableform" align="center">
-        {% if request.GET.error %}<ul class="errorlist"><li><p style="text-align:center;"><small>La mail da cui proviene questo link &egrave; scaduta, prego rifare tutta la procedura di reset password</small></p></li></ul>{% endif %}
+<p class="access-info">Digitare due volte la nuova password.</p><br/>
+<form method="post" action="">{% csrf_token %}
+        <table class="tableform">
+        {% if request.GET.error %}<ul class="errorlist"><li><p style="text-align:center;"><small>{% trans "La mail da cui proviene questo link &egrave; scaduta, prego rifare tutta la procedura di reset password" %}</small></p></li></ul>{% endif %}
         {{ form.as_table }}
         </table>
-        <table width="100%" align="center">
-        <tr><td><br/><p style="text-align:center;"><input class="btn" type="submit" value="Invia" id="sendbutton"/></p></td></tr>
-        </table>
+<br/>
+        <p class="center"><input class="btn" type="submit" value="Invia" id="sendbutton"/></p>
 <br/>
 
 {% endif %}
@@ -85,7 +56,6 @@ function nascondiuser() {
 	<table id="tableform" align="center">
 	{{ form.as_table }}
 	</table>
-        <div id="terminidiv" style="text-align:justify;">Con la presente Vi informiamo che i dati personali da voi forniti verranno trattati nel pieno rispetto del d. lgs. 196/2003 attraverso l’utilizzo di supporti informatici. Il trattamento dei dati, avverrà mediante strumenti idonei ad assicurare la sicurezza e la riservatezza, in conformità a quanto espressamente previsto dall’art. 31 del d.lgs. 196/2003 e potranno essere usati a scopo informativo (con finalità promozionali, di marketing e di ricerche statistiche e di mercato).</div>
 	<table width="100%" align="center">
 	<tr><td><br/><p style="text-align:center;"><input class="btn" type="submit" value="Invia" id="sendbutton"/></p></td></tr>
 	</table>
@@ -121,10 +91,6 @@ function nascondiuser() {
 	</table>
 	<table width="100%" align="center">
 	{% if not signup and not forgotpsw and not resetpsw %}<tr><td><h4 style="text-align:center;"><a href="/access/forgotpsw">Dimenticato la password?</a></h4></td></tr>{% endif %}
-        {% if signup %}
-        <div id="terminidiv" style="text-align:justify;">Con la presente Vi informiamo che i dati personali da voi forniti verranno trattati nel pieno rispetto del d. lgs. 196/2003 attraverso l’utilizzo di supporti informatici. Il trattamento dei dati, avverrà mediante strumenti idonei ad assicurare la sicurezza e la riservatezza, in conformità a quanto espressamente previsto dall’art. 31 del d.lgs. 196/2003 e potranno essere usati a scopo informativo (con finalità promozionali, di marketing e di ricerche statistiche e di mercato).</div>
-
-	{% endif %}
 	<tr><td><br/><p style="text-align:center;"><input class="btn" type="submit" value="{% if not signup %}Accedi{% else %}Invia{% endif %}" id="sendbutton"/></p></td></tr>
 	</table>
         <br/>

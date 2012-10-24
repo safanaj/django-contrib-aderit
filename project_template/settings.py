@@ -161,6 +161,7 @@ INSTALLED_APPS = (
     #'django.contrib.aderit.send_mail',
     #'captcha',
     #'django.contrib.aderit.access_account',
+    #'account',
 )
 
 # Some frequent used settings
@@ -170,6 +171,8 @@ INSTALLED_APPS = (
 #LOGIN_URL = "/access"
 #LOGIN_REDIRECT_URL
 #ACCESS_ACCOUNT_USE_CAPTCHA = False
+
+#AUTH_PROFILE_MODULE = 'account.Account'
 
 #DAJAXICE_MEDIA_PREFIX="dajaxice"
 

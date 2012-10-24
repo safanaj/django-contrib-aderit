@@ -14,7 +14,7 @@ Architecture: all
 Depends: ${misc:Depends}, ${python:Depends}, python-django, pwgen,
  python-werkzeug, python-django-south | python-south,
  python-django-dajaxice, python-django-dajax
-Recommends: python-django-simple-captcha
+Recommends: python-django-simple-captcha, python-django-treemenus
 Description: Libreria di strumenti by Aderit
  Library of tools by Aderit
 

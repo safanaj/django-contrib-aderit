@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% load markup i18n %}
+
+{% block extra-head %}
+
+{% endblock %}
+
+{% block content %}
+
+
+<ul>
+  <li><a href="{% url chprofile slug=request.user.id %}">{% trans "UPDATE PROFILE" %}</a></li>
+  <li><a href="{% url profile slug=request.user.id %}">{% trans "VIEW PROFILE" %}</a></li>
+
+</ul>
+{{ account.user.username }}<br/>
+{{ account.user.email }}<br/>
+{{ account.user.first_name }}<br/>
+{{ account.user.last_name }}<br/>
+
+{{ account.company }}
+
+{% endblock %}
