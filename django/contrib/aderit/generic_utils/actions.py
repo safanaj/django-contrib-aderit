@@ -48,7 +48,6 @@ def export_as_csv_action(modeladmin, request, queryset):
         "object_name": force_unicode(opts.verbose_name),
         "queryset": queryset,
         "exportable_objects": fields,
-        "root_path": modeladmin.admin_site.root_path,
         "app_label": app_label,
         'action_checkbox_name': helpers.ACTION_CHECKBOX_NAME,
     }
