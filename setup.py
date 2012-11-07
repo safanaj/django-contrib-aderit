@@ -35,7 +35,7 @@ for dirpath, dirnames, filenames in os.walk(django_contrib_aderit_root_dir):
         data_files.append([os.path.join(get_python_lib(), dirpath), [os.path.join(dirpath, f) for f in filenames]])
 
 setup(name='DjangoContribAderit',
-      version='1.4.3',
+      version='1.4.3.1',
       description='Collection of Aderit tools for Django',
       author='Matteo Atti',
       author_email='matteo.atti@aderit.it',

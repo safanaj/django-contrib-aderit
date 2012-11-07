@@ -63,7 +63,7 @@ class TokenBackend(object):
                         pass
             else:
                 try:
-                    if user is not None default_token_generator.check_token(user, token):
+                    if user is not None and default_token_generator.check_token(user, token):
                         logger.debug("model[%s] have not token field (user: %s , token: %s) is valid, auth OK",
                                      model, user, token)
                         return user
