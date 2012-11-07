@@ -102,7 +102,7 @@ def generic_formclass_factory(classes, bases=[], prepend_fields=False,
                                              appending=sorted_fields)
             new_form_class.base_fields.update(uniq_fields)
         else:
-            new_form_class.base_fields.update(klass.base_fields)
+            new_form_class.base_fields.update(sorted_fields)
 
     return new_form_class
 
