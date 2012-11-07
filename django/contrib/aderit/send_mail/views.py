@@ -43,7 +43,7 @@ def _SendTypeMail(kwargs, in_bulk=False):
 
     @in_bulk: tipo di invio, True o False
     """
-    logger.debug(kwargs)
+    logger.debug("_SendTypeMail (in_bulk=%s) kw: %s", in_bulk, kwargs)
     try:
         tipo = kwargs['type']
     except KeyError:
@@ -53,7 +53,7 @@ def _SendTypeMail(kwargs, in_bulk=False):
     except KeyError:
         raise KeyError("mailto key is required to send an email")
     try:
-        mail = SendMail.objects.get(type_mail=tipo) 
+        mail = SendMail.objects.get(type_mail=tipo)
     except SendMail.DoesNotExist:
         raise SendMail.DoesNotExist("requested SendMail type: \"%s\" does not exist" % tipo)
     body_txt = mail.body_txt
@@ -61,14 +61,14 @@ def _SendTypeMail(kwargs, in_bulk=False):
     if body_html:
         alternatives=[(body_html,'text/html')]
     else:
-	alternatives=None
+        alternatives=None
     subj = mail.subject
     sender = mail.mail_sender
     attachments = mail.attachments.all()
     if len(attachments) == 0:
-	attachments = []
+        attachments = []
     else:
-	logger.debug(attachments)
+        logger.debug("attachments: %s", attachments)
 
     # build up a dict to template rendering
     if in_bulk:

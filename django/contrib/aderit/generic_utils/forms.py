@@ -27,7 +27,7 @@ def generic_formclass_factory(classes, bases=[], prepend_fields=False,
            }
            to produce:
            <input type="text" name='mail_address' value="... some initial value..." /> etc ...
-    
+
     @prepend_fields: if True, keywords fields are prepended insted appended.
     @fields_uniqueness and @uniqueness_prefix to avoid several base_fields override other base_fields
 

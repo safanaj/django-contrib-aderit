@@ -105,7 +105,7 @@ class LoginView(FormView, CaptchableView):
 
         if self.request.session.test_cookie_worked():
             self.request.session.delete_test_cookie()
-        
+
         if self.model is None:
             self.model = _get_model_from_auth_profile_module()
 
@@ -205,7 +205,7 @@ class UpdateView(UpdateView, CaptchableView):
             return self.request.user.get_profile()
         except (self.model.DoesNotExist, AttributeError):
             return None
-    
+
     ## POST related method
     def form_valid(self, form):
         ### TODO: put interesting fields in an instance variable list
@@ -225,13 +225,15 @@ class SignupView(CreateView, GenericProtectedUncacheableView, CaptchableView):
     model = _get_model_from_auth_profile_module()
     template_name = "registration/signup_as_ul.html"
     user_create_form_class = UserCreationForm
-    exclude_formfields = ['user']
+    exclude_formfields = ['user', 'password', 'user_permissions',
+                          'is_staff', 'is_superuser', 'is_active',
+                          'groups', 'last_login', 'date_joined']
     slug = None
     success_url = "/"
-    
+
     def get_initial(self):
         return {}
-    
+
     def get_form_class(self):
         if self.form_class is not None:
             return super(SignupView, self).get_form_class()
@@ -240,7 +242,7 @@ class SignupView(CreateView, GenericProtectedUncacheableView, CaptchableView):
         # form_k = generic_formclass_factory([], prepend_fields=True,
         #                                    sorted_fields=self.user_create_form_class.base_fields,
         #                                    bases=[super_form_k])
-        form_k = generic_formclass_factory([super_form_k],
+        form_k = generic_formclass_factory([super_form_k, User],
                                            bases=[self.user_create_form_class])
         for k in self.exclude_formfields:
             if form_k.base_fields.has_key(k):
@@ -250,16 +252,28 @@ class SignupView(CreateView, GenericProtectedUncacheableView, CaptchableView):
 
         return form_k
 
+
+    def _consume_formfields(list_, *args):
+        for f in args:
+            try:
+                list_.pop(list_.index(f))
+            except ValueError:
+                pass
+
     def form_valid(self, form):
+        form_keys = form.data.keys()[:]
         new_user = User.objects.create_user(username=form.data['username'],
                                             password=form.data['password1'],
                                             email=form.data.get('email', None))
+        # consume username, password1 password2, email pk id user
+        self._consume_formfields(form_keys, 'username', 'password1', 'password2', 'email', 'pk', 'id', 'user')
         if self.model is None:
             self.model = _get_model_from_auth_profile_module()
         account_kwargs = {}
         for fname in [f.name for f in self.model._meta.fields if not f.name in ['pk', 'id', 'user']]:
             if form.data.has_key(fname):
                 account_kwargs.update({ fname : form.data[fname] })
+                self._consume_formfields(form_keys, fname)
         try:
             self.object = new_user.get_profile()
         except (self.model.DoesNotExist, AttributeError):
@@ -268,6 +282,17 @@ class SignupView(CreateView, GenericProtectedUncacheableView, CaptchableView):
         else:
             rows = self.model.objects.filter(pk=self.object.pk).update(**account_kwargs)
             assert(rows == 1 or rows == len(account_kwargs) == 0)
+        if bool(form_keys): # remain some keys try them over User model
+            have_to_save = False
+            for k in form_keys[:]:
+                if hasattr(new_user, k):
+                    have_to_save = True
+                    setattr(new_user, k, form.data[k])
+                self._consume_formfields(form_keys, k)
+        if have_to_save:
+            new_user.save()
+        if bool(form_keys):
+            logger.warning("remain some unused form fields: %s", form_keys)
         return HttpResponseRedirect(self.get_success_url())
 
 class ChangePasswordView(FormView, GenericProtectedUncacheableView, CaptchableView):
