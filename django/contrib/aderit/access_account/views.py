@@ -12,9 +12,11 @@ from django.http import HttpResponseRedirect, urlparse
 from django.core.urlresolvers import reverse
 from django.template.response import TemplateResponse
 from django.forms import fields as forms_fields, widgets as forms_widgets, models as forms_models
-from django.views.generic.base import TemplateView
-from django.views.generic.detail import DetailView
-from django.views.generic.edit import UpdateView, CreateView, FormView
+from django.views.generic.base import TemplateView as _TemplateView
+from django.views.generic.detail import DetailView as _DetailView
+from django.views.generic.edit import (UpdateView as _UpdateView,
+                                       CreateView as _CreateView,
+                                       FormView as _FormView)
 from django.utils.translation import ugettext as _
 from django.utils.log import getLogger
 
@@ -32,13 +34,16 @@ from django.contrib.aderit.generic_utils.forms import generic_formclass_factory,
 from django.contrib.aderit.send_mail.views import SendTypeMail ## to move in utils.py
 from django.contrib.aderit.access_account import _get_model_from_auth_profile_module
 
+## login_after_signup
+DO_LOGIN_AFTER_SIGNUP = getattr(settings,'ACCESS_ACCOUNT_LOGIN_ON_SIGNUP', False)
+
 ## maybe in CaptchableView
 HAS_CAPTCHA = 'captcha' in settings.INSTALLED_APPS
-USE_CAPTCHA_SIGNUP = HAS_CAPTCHA and getattr(settings,'CAPTCHA_SIGNUP',True)
-USE_CAPTCHA_CHPSW = HAS_CAPTCHA and getattr(settings,'CAPTCHA_CHPSW',False)
-USE_CAPTCHA_CHPROFILE = HAS_CAPTCHA and getattr(settings,'CAPTCHA_CHPROFILE',False)
-USE_CAPTCHA_FORGOTPSW = HAS_CAPTCHA and getattr(settings,'CAPTCHA_FORGOTPSW',True)
-USE_CAPTCHA_RESETPSW = HAS_CAPTCHA and getattr(settings,'CAPTCHA_RESETPSW',False)
+USE_CAPTCHA_SIGNUP = HAS_CAPTCHA and getattr(settings, 'CAPTCHA_SIGNUP', True)
+USE_CAPTCHA_CHPSW = HAS_CAPTCHA and getattr(settings, 'CAPTCHA_CHPSW', False)
+USE_CAPTCHA_CHPROFILE = HAS_CAPTCHA and getattr(settings, 'CAPTCHA_CHPROFILE', False)
+USE_CAPTCHA_FORGOTPSW = HAS_CAPTCHA and getattr(settings, 'CAPTCHA_FORGOTPSW', True)
+USE_CAPTCHA_RESETPSW = HAS_CAPTCHA and getattr(settings, 'CAPTCHA_RESETPSW', False)
 if HAS_CAPTCHA:
     from captcha.fields import CaptchaField
 CAPTCHA_FIELD_CLASS = (HAS_CAPTCHA and CaptchaField) or None
@@ -58,7 +63,7 @@ class CaptchableView(GenericProtectedView):
     captcha_field_name = 'captcha'
     captcha_field = None
 
-class LoginView(FormView, CaptchableView):
+class LoginView(_FormView, CaptchableView):
     """
     Class based view, copied from django.contrib.auth.views.login
 
@@ -71,6 +76,7 @@ class LoginView(FormView, CaptchableView):
     redirect_to = getattr(settings, 'LOGIN_REDIRECT_URL', "")
     current_app = None
     authentication_form_class = AuthenticationForm
+    formfields_uniqueness = False
 
     def get_initial(self):
         initial = super(LoginView, self).get_initial()
@@ -95,7 +101,7 @@ class LoginView(FormView, CaptchableView):
 
         _maybe_add_captcha(self, additional_fields)
 
-        return generic_formclass_factory([],
+        return generic_formclass_factory([], fields_uniqueness=self.formfields_uniqueness,
                                          bases=[self.authentication_form_class],
                                          sorted_fields=additional_fields)
 
@@ -117,7 +123,7 @@ class LoginView(FormView, CaptchableView):
                 self.request.user.get_profile()
             except (self.model.DoesNotExist, AttributeError):
                 self.model(user=self.request.user).save()
-        
+
         return HttpResponseRedirect(self.redirect_to)
 
     def form_invalid(self, form):
@@ -128,7 +134,7 @@ class LoginView(FormView, CaptchableView):
 
         if self.current_app is None:
             self.current_app = self.model.__name__.lower()
-        
+
         context = self.get_context_data(**{'form': form,
                                            self.redirect_field_name: self.redirect_to,
                                            'site': current_site,
@@ -136,13 +142,15 @@ class LoginView(FormView, CaptchableView):
         return TemplateResponse(self.request, self.template_name, context,
                                 current_app=self.current_app)
 
-class UpdateView(UpdateView, CaptchableView):
+class UpdateView(_UpdateView, CaptchableView):
     model = _get_model_from_auth_profile_module()
     slug = None
     exclude_formfields = ['user', 'password', 'user_permissions',
                           'is_staff', 'is_superuser', 'is_active',
                           'groups', 'last_login', 'date_joined']
+    additional_exclude_formfields = None
     user_change_form_class = UserChangeForm
+    formfields_uniqueness = False
 
     def get_success_url(self):
         if self.success_url:
@@ -157,8 +165,13 @@ class UpdateView(UpdateView, CaptchableView):
         super_form_k.base_fields = {}
         form_k = generic_formclass_factory([], sorted_fields=self.user_change_form_class.base_fields,
                                            prepend_fields=True,
+                                           fields_uniqueness=self.formfields_uniqueness,
                                            bases=[super_form_k])
-        for k in self.exclude_formfields:
+
+        _exclude_formfields = self.exclude_formfields[:]
+        if self.additional_exclude_formfields is not None:
+            _exclude_formfields += self.additional_exclude_formfields[:]
+        for k in _exclude_formfields:
             if form_k.base_fields.has_key(k):
                 del form_k.base_fields[k]
 
@@ -221,13 +234,16 @@ class UpdateView(UpdateView, CaptchableView):
             self.object.save()
         return HttpResponseRedirect(self.get_success_url())
 
-class SignupView(CreateView, GenericProtectedUncacheableView, CaptchableView):
+class SignupView(_CreateView, GenericProtectedUncacheableView, CaptchableView):
     model = _get_model_from_auth_profile_module()
     template_name = "registration/signup_as_ul.html"
     user_create_form_class = UserCreationForm
+    formfields_uniqueness = False
     exclude_formfields = ['user', 'password', 'user_permissions',
                           'is_staff', 'is_superuser', 'is_active',
                           'groups', 'last_login', 'date_joined']
+    additional_exclude_formfields = None
+    login_after_signup = DO_LOGIN_AFTER_SIGNUP
     slug = None
     success_url = "/"
 
@@ -243,8 +259,12 @@ class SignupView(CreateView, GenericProtectedUncacheableView, CaptchableView):
         #                                    sorted_fields=self.user_create_form_class.base_fields,
         #                                    bases=[super_form_k])
         form_k = generic_formclass_factory([super_form_k, User],
+                                           fields_uniqueness=self.formfields_uniqueness,
                                            bases=[self.user_create_form_class])
-        for k in self.exclude_formfields:
+        _exclude_formfields = self.exclude_formfields[:]
+        if self.additional_exclude_formfields is not None:
+            _exclude_formfields += self.additional_exclude_formfields[:]
+        for k in _exclude_formfields:
             if form_k.base_fields.has_key(k):
                 del form_k.base_fields[k]
 
@@ -253,7 +273,7 @@ class SignupView(CreateView, GenericProtectedUncacheableView, CaptchableView):
         return form_k
 
 
-    def _consume_formfields(list_, *args):
+    def _consume_formfields(self, list_, *args):
         for f in args:
             try:
                 list_.pop(list_.index(f))
@@ -293,9 +313,11 @@ class SignupView(CreateView, GenericProtectedUncacheableView, CaptchableView):
             new_user.save()
         if bool(form_keys):
             logger.warning("remain some unused form fields: %s", form_keys)
+        if self.login_after_signup:
+            auth_login(self.request, new_user)
         return HttpResponseRedirect(self.get_success_url())
 
-class ChangePasswordView(FormView, GenericProtectedUncacheableView, CaptchableView):
+class ChangePasswordView(_FormView, GenericProtectedUncacheableView, CaptchableView):
     model = _get_model_from_auth_profile_module()
     slug = None
     slug_field = 'id'
@@ -336,7 +358,7 @@ class ChangePasswordView(FormView, GenericProtectedUncacheableView, CaptchableVi
         return TemplateResponse(self.request, self.change_done_template_name)
 
 ################## Without Form Views
-class LogoutView(TemplateView):
+class LogoutView(_TemplateView):
     """
     Class based view, copied from django.contrib.auth.views.logout
 
@@ -369,7 +391,7 @@ class LogoutView(TemplateView):
             # Redirect to this page until the session has been cleared.
             return HttpResponseRedirect(self.next_page or self.request.path)
 
-class DetailView(DetailView, GenericUtilView):
+class DetailView(_DetailView, GenericUtilView):
     slug_field = 'pk'
 
     def get_object(self):
@@ -385,7 +407,7 @@ class DetailView(DetailView, GenericUtilView):
         except:
             return None
 
-class ForgotPasswordView(FormView, CaptchableView):
+class ForgotPasswordView(_FormView, CaptchableView):
     success_template_name = 'account/forgot_psw_ok.html'
     send_mail_type_name = 'forgot password'
     delete_token_after_use = True
