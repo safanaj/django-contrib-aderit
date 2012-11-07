@@ -218,6 +218,11 @@ class GenericProtectedUncacheableView(GenericUtilView):
     use_csrf_protect_decorator = True
     use_never_cache_decorator = True
 
+
+### TODO: implementare GenericFormView, GenericCreateView, GenericUpdateView, GenericDeleteView
+###       per mettere `action_url' e `submit_label' nel contesto via `get_context_data'
+
+
 ### others simple view
 def external_view(request, target):
     return HttpResponsePermanentRedirect('http://' + target)
