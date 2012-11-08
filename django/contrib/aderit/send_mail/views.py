@@ -101,7 +101,7 @@ def _SendTypeMail(kwargs, in_bulk=False):
             raise AttributeError("No class % in %s module" % (class_name, mod_name))
     if not issubclass(email_backend, BaseEmailBackend):
         raise Exception("email_backend have to be a subclass BaseEmailBackend")
-    logger.debug("Send mail %s to %s", subj, mailto)
+    logger.debug("Send mail %s to %s -- conf_dict_string: %s", subj, mailto, str(conf_dict))
     try:
         return send_email_msg(smtp_host=smtp_host,
                               smtp_port=smtp_port,
@@ -116,7 +116,7 @@ def _SendTypeMail(kwargs, in_bulk=False):
                               to=mailto,
                               alternatives=alternatives,
                               attachments=[a.attachment.path for a in attachments],
-                              custom_dict_string=str(conf_dict))
+                              custom_dict=conf_dict)
     except Exception, e:
         logger.critical("SendTypeMail: send_mail_msg fail: %s", e)
         # send an email to mailto_error ...
