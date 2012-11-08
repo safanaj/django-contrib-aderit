@@ -12,13 +12,13 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-
 from django.conf import settings
 from django.utils.log import getLogger
 from django.contrib.auth.models import User, check_password
 from django.contrib.auth.tokens import default_token_generator
 
 from django.contrib.aderit.access_account import _get_model_from_auth_profile_module
+from django.contrib.aderit.access_account.tokens import check_random_token_is_valid
 
 logger = getLogger('aderit.access_account.auth_backend')
 
@@ -48,10 +48,15 @@ class TokenBackend(object):
             if 'token' in [f.name for f in model._meta.fields]:
                 try:
                     user_profile =  model.objects.get(token=token)
-                    if user is None:
+                    if user is None and \
+                           check_random_token_is_valid(token):
                         return user_profile.user
-                    elif user == user_profile.user:
+                    elif user == user_profile.user and \
+                             check_random_token_is_valid(token):
                         return user
+                except model.MultipleObjectsReturned:
+                    logger.error("token[\"%s\"] is not unique", token)
+                    return None
                 except model.DoesNotExist:
                     try:
                         if user is not None and default_token_generator.check_token(user, token):
