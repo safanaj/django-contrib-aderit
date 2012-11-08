@@ -45,7 +45,7 @@ class TokenBackend(object):
         logger.debug("authenticate ( token=%s , user=%s )", token, user)
         if token is not None:
             model = _get_model_from_auth_profile_module()
-            if hasattr(model, 'token'):
+            if 'token' in [f.name for f in model._meta.fields]:
                 try:
                     user_profile =  model.objects.get(token=token)
                     if user is None:
