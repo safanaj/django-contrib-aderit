@@ -13,6 +13,9 @@ mailto_error = getattr(settings, 'ADERIT_SEND_MAIL_ERROR_MAILTO', 'matteo.atti@a
 sender_error = getattr(settings, 'ADERIT_SEND_MAIL_ERROR_SENDER', 'error@sendmail.it')
 subj_error = getattr(settings, 'ADERIT_SEND_MAIL_ERROR_SUBJ', 'aderit.SendMail Error')
 
+class SendTypeMailError(Exception):
+    def __repr__(self):
+        return "Invalid parameters"
 
 
 def _SendTypeMail(kwargs, in_bulk=False):
@@ -43,15 +46,30 @@ def _SendTypeMail(kwargs, in_bulk=False):
 
     @in_bulk: tipo di invio, True o False
     """
+    def _check_and_clean_mailto_list(mailto_list):
+        _mailto = mailto_list[:]
+        raise_error = True
+        for idx, m in enumerate(_mailto):
+            if m == "":
+                logger.warning("_SendTypeMail: removed an empty email in 'mailto' at index %d", idx)
+                mailto_list.pop(idx)
+            else:
+                raise_error = False
+        if raise_error:
+            raise SendTypeMailError("At least a recipient is required, 'mailto' passed: %s", _mailto)
+
     logger.debug("_SendTypeMail (in_bulk=%s) kw: %s", in_bulk, kwargs)
     try:
         tipo = kwargs['type']
     except KeyError:
-        raise KeyError("type key is required to query SendMail Model")
+        raise SendTypeMailError("type key is required to query SendMail Model")
     try:
         mailto = kwargs['mailto']
     except KeyError:
-        raise KeyError("mailto key is required to send an email")
+        raise SendTypeMailError("mailto key is required to send an email")
+
+    _check_and_clean_mailto_list(mailto)
+
     try:
         mail = SendMail.objects.get(type_mail=tipo)
     except SendMail.DoesNotExist:
@@ -118,7 +136,7 @@ def _SendTypeMail(kwargs, in_bulk=False):
                               attachments=[a.attachment.path for a in attachments],
                               custom_dict=conf_dict)
     except Exception, e:
-        logger.critical("SendTypeMail: send_mail_msg fail: %s", e)
+        logger.critical("_SendTypeMail: send_mail_msg fail: %s", e)
         # send an email to mailto_error ...
         raise e
 
