@@ -20,6 +20,9 @@ from django.contrib.auth.decorators import (login_required,
                                             user_passes_test)
 
 _DEFAULT_CACHE_TIMEOUT = getattr(settings, 'CACHE_MIDDLEWARE_SECONDS', 3600)
+_UNCLEANABLE_COOKIES = getattr(settings,
+                               'UNCLEANABLE_COOKIES',
+                               ['__utmz', 'sessionid', 'csrftoken', '__utma'])
 
 from exceptions import Exception
 class GenericUtilUseDecoratorError(Exception):
@@ -73,6 +76,33 @@ class GenericUtilView(View):
     user_passes_test_decorator_test_func = lambda u: True
     user_passes_test_decorator_login_url = None
     user_passes_test_decorator_redirect_field_name = REDIRECT_FIELD_NAME
+
+    ### Stuff to clean cookies
+    clean_response_cookies = False
+    exclude_clean_cookies = None
+    only_clean_cookies = None
+
+    def _clean_response_cookies(self, response):
+        _exclude = []
+        if isinstance(self.exclude_clean_cookies, tuple):
+            _exclude += list(self.exclude_clean_cookies)
+        elif isinstance(self.exclude_clean_cookies, list):
+            _exclude += self.exclude_clean_cookies
+        _only = []
+        if isinstance(self.only_clean_cookies, tuple):
+            _only += list(self.only_clean_cookies)
+        elif isinstance(self.only_clean_cookies, list):
+            _only += self.only_clean_cookies
+        _uncleanable = []
+        if isinstance(_UNCLEANABLE_COOKIES, tuple):
+            _uncleanable += list(_UNCLEANABLE_COOKIES)
+        elif isinstance(_UNCLEANABLE_COOKIES, list):
+            _uncleanable += _UNCLEANABLE_COOKIES
+        uncleanable_cookies = _uncleanable + _exclude
+        clean_cookies = _only or response.cookies.keys()
+        _cookies = set(clean_cookies) - set(uncleanable_cookies)
+        for c in list(_cookies):
+            response.delete_cookie(c)
 
     def _decorate_handler(self, handler):
         if self.use_sensitive_variables_decorator:
@@ -188,7 +218,7 @@ class GenericUtilView(View):
                 logger.debug("standard setup_attrs done with kwargs: %s", kwargs)
         if self.debug_dispatch_method:
             logger.debug("Go to decorate handler")
-        #response = self._decorate_handler(super(GenericUtilView, self).dispatch)(request, *args, **kwargs)
+
         decorated = self._decorate_handler(super(GenericUtilView, self).dispatch)
         response = decorated(request, *args, **kwargs)
         if self.force_never_cache:
@@ -204,6 +234,9 @@ class GenericUtilView(View):
                     if not getattr(response, 'is_rendered', True):
                         response.render()
                     logger.debug("response content:\n%s\n", response.content)
+
+        if self.clean_response_cookies:
+            self._clean_response_cookies(response)
         return response
 
 class GenericProtectedView(GenericUtilView):

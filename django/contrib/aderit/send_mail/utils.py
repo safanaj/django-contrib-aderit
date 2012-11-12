@@ -9,7 +9,8 @@ def send_email_msg(smtp_host='localhost', smtp_port=25, connection=None, smtp_us
                    smtp_passwd='', use_tls=False, backend=EmailBackend,
                    subject='', body='', from_email=None, headers=None, to=None, cc=None, bcc=None,
                    attachments=None, alternatives=None, encoding='utf-8',
-                   send_it=True, in_bulk=False, custom_dict_string=None, chunk_size=None):
+                   send_it=True, in_bulk=False, chunk_size=None,
+                    custom_dict_string=None, custom_dict=None):
     """
     Wrapper function ... TOWRITE
     """
@@ -23,7 +24,7 @@ def send_email_msg(smtp_host='localhost', smtp_port=25, connection=None, smtp_us
 
     #alternatives deve essere una tupla contenente il mess alternativo html + il mimetype
 
-    custom_dict = type_dict = None
+    type_dict = None
     if custom_dict_string:
         try:
             custom_dict = eval(custom_dict_string)

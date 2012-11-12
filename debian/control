@@ -1,7 +1,7 @@
 Source: django-contrib-aderit
 Section: python
 Priority: extra
-Build-Depends: debhelper (>= 7.0.50~)
+Build-Depends: debhelper (>= 9)
 Build-Depends-Indep: python-support (>= 1.0), python
 Maintainer: Matteo Atti <matteo.atti@aderit.it>
 Standards-Version: 3.9.3

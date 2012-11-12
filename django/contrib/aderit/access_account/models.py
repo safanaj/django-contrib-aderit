@@ -51,7 +51,14 @@ class AccessAccount(models.Model):
 
     @property
     def fullname(self):
-        return "%s %s" % (self.firstname, self.lastname)
+        _fullname = ""
+        if self.firstname != "":
+            _fullname += self.firstname
+        if self.lastname != "":
+            _fullname += " " + self.lastname
+        if _fullname == "":
+            _fullname = self.username
+        return _fullname
 
     def _set_is_staff(self, value):
         self.user.is_staff = value
