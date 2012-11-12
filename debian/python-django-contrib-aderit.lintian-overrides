@@ -1,0 +1,2 @@
+binary: binary-without-manpage
+binary: executable-not-elf-or-script
