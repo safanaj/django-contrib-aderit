@@ -391,7 +391,7 @@ class SignupView(_CreateView, GenericProtectedUncacheableView, CaptchableView):
         account_kwargs = {}
         _model_field_names = [f.name for f in self.model._meta.fields if not f.name in ['pk', 'id', 'user']]
         _consume_formfields(form_keys, 'pk', 'id', 'user')
-        for fname in form_keys:
+        for fname in form_keys[:]:
             if fname in _model_field_names:
                 account_kwargs.update({ fname : form.data[fname] })
                 _consume_formfields(form_keys, fname)
