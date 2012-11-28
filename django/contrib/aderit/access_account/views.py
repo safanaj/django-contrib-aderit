@@ -4,7 +4,7 @@
 # * prestabilire gli urls standard
 # * minimizzare i templates necessarie usando
 #   get_template_names() e schemi del tipo:
-#   "%s_%s.html" % ('account', 'form_as_ul') ... 
+#   "%s_%s.html" % ('account', 'form_as_ul') ...
 # * pulire imports
 #################################### new stuff
 from django.conf import settings

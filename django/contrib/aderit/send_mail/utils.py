@@ -10,7 +10,7 @@ def send_email_msg(smtp_host='localhost', smtp_port=25, connection=None, smtp_us
                    subject='', body='', from_email=None, headers=None, to=None, cc=None, bcc=None,
                    attachments=None, alternatives=None, encoding='utf-8',
                    send_it=True, in_bulk=False, chunk_size=None,
-                    custom_dict_string=None, custom_dict=None):
+                   custom_dict_string=None, custom_dict=None):
     """
     Wrapper function ... TOWRITE
     """
@@ -76,13 +76,15 @@ def send_email_msg(smtp_host='localhost', smtp_port=25, connection=None, smtp_us
                 render_alternatives.append((Template(c).render(Context(custom_dict)),m))
         if chunk_size is not None and isinstance(chunk_size, int) and chunk_size > 2:
             dests = []
+            if bcc is None:
+                bcc = []
             while len(bcc) > 0:
                 dests.append(bcc[:chunk_size])
                 del bcc[:chunk_size]
-            for bcc in dests:
+            for _bcc in dests:
                 msg = EmailMultiAlternatives(subject=render_subj, body=render_body,
                                              from_email=from_email, headers=headers,
-                                             to=[from_email], cc=None, bcc=bcc,
+                                             to=[from_email], cc=None, bcc=_bcc,
                                              attachments=attachments,
                                              alternatives=render_alternatives)
                 msg.encoding = encoding

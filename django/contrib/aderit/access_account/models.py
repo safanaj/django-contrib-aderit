@@ -26,7 +26,7 @@ class AccessAccount(models.Model):
         super(AccessAccount, self).save(force_insert=force_insert, force_update=force_update, using=using)
 
     def _set_username(self, value):
-        self.user.username = value    
+        self.user.username = value
     def _get_username(self):
         return self.user.username
     username = property(_get_username, _set_username)
@@ -38,7 +38,7 @@ class AccessAccount(models.Model):
     email = property(_get_email, _set_email)
 
     def _set_firstname(self, value):
-        self.user.first_name = value        
+        self.user.first_name = value
     def _get_firstname(self):
         return self.user.first_name
     firstname = property(_get_firstname, _set_firstname)

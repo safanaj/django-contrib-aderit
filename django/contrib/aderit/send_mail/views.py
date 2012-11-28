@@ -9,10 +9,6 @@ from django.contrib.aderit.send_mail.models import SendMail
 
 logger = getLogger("aderit.send_mail")
 
-mailto_error = getattr(settings, 'ADERIT_SEND_MAIL_ERROR_MAILTO', 'matteo.atti@aderit.it')
-sender_error = getattr(settings, 'ADERIT_SEND_MAIL_ERROR_SENDER', 'error@sendmail.it')
-subj_error = getattr(settings, 'ADERIT_SEND_MAIL_ERROR_SUBJ', 'aderit.SendMail Error')
-
 class SendTypeMailError(Exception):
     def __repr__(self):
         return "Invalid parameters"
@@ -52,7 +48,7 @@ def _SendTypeMail(kwargs, in_bulk=False):
         for idx, m in enumerate(_mailto):
             if m == "":
                 logger.warning("_SendTypeMail: removed an empty email in 'mailto' at index %d", idx)
-                mailto_list.pop(idx)
+                mailto_list.pop(mailto_list.index(m))
             else:
                 raise_error = False
         if raise_error:
@@ -120,27 +116,31 @@ def _SendTypeMail(kwargs, in_bulk=False):
     if not issubclass(email_backend, BaseEmailBackend):
         raise Exception("email_backend have to be a subclass BaseEmailBackend")
     logger.debug("Send mail %s to %s -- conf_dict_string: %s", subj, mailto, str(conf_dict))
+    # prepare kwargs for send_email_msg
+    send_email_msg_kw = {
+        'smtp_host' : smtp_host,
+        'smtp_port' : smtp_port,
+        'connection' : connection,
+        'smtp_user' : smtp_user,
+        'smtp_passwd' : smtp_password,
+        'use_tls' : smtp_use_tls,
+        'backend' : email_backend,
+        'subject' : subj,
+        'from_email' : sender,
+        'body' : body_txt,
+        'to' : mailto,
+        'alternatives' : alternatives,
+        'attachments' : [a.attachment.path for a in attachments],
+        'custom_dict' : conf_dict
+        }
+    if in_bulk:
+        send_email_msg_kw.update({ 'bcc' : mailto })
+    logger.debug("Send email msg with kw: %s", send_email_msg_kw)
     try:
-        return send_email_msg(smtp_host=smtp_host,
-                              smtp_port=smtp_port,
-                              connection=connection,
-                              smtp_user=smtp_user,
-                              smtp_passwd=smtp_password,
-                              use_tls=smtp_use_tls,
-                              backend=email_backend,
-                              subject=subj,
-                              from_email=sender,
-                              body=body_txt,
-                              to=mailto,
-                              alternatives=alternatives,
-                              attachments=[a.attachment.path for a in attachments],
-                              custom_dict=conf_dict)
+        return send_email_msg(**send_email_msg_kw)
     except Exception, e:
         logger.critical("_SendTypeMail: send_mail_msg fail: %s", e)
-        # send an email to mailto_error ...
         raise e
-
-
 
 
 def SendTypeMail(kwargs):
