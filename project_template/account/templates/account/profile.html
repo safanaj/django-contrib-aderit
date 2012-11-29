@@ -9,8 +9,8 @@
 
 
 <ul>
-  <li><a href="{% url chprofile slug=request.user.id %}">{% trans "UPDATE PROFILE" %}</a></li>
-  <li><a href="{% url profile slug=request.user.id %}">{% trans "VIEW PROFILE" %}</a></li>
+  <li><a href="{% url chprofile slug=request.user.get_profile.id %}">{% trans "UPDATE PROFILE" %}</a></li>
+  <li><a href="{% url profile %}/{{request.user.get_profile.id}}">{% trans "VIEW PROFILE" %}</a></li>
 
 </ul>
 {{ account.user.username }}<br/>

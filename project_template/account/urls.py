@@ -1,49 +1,67 @@
-from django.conf.urls.defaults import *
-from django.views.generic import TemplateView, ListView, DetailView
-from django.views.generic.edit import UpdateView, CreateView
-from django.contrib.auth.decorators import login_required
-from account.views import (AccountUpdateView, AccountSignupView,
-                           AccountLoginView, AccountLogoutView)
+from django.conf.urls.defaults import url, patterns
+
+from django.contrib.aderit.access_account.views import (LoginView, LogoutView,
+                                                        UpdateView,
+                                                        ChangePasswordView,
+                                                        ForgotPasswordView,
+                                                        DetailView)
 
 from account.models import Account
 
-#TODO nominare tutti gli urls e dargli un nome per il reverse; renderli anche piu' chiari
+from account.utils import callback_on_login, callback_on_signup
+
+from account.views import SignupView
 
 urlpatterns = patterns('',
-    url(r'^login$',
-        AccountLoginView.as_view(redirect_to='/'),
+    (r'^$', LoginView.as_view(redirect_to='/', allow_token=True,
+                              template_name="account/account_form_as_ul.html")),
+
+    url(r'^login/((?P<token>.+)/)?$',
+        LoginView.as_view(allow_token=True,
+                          after_login_callback=callback_on_login,
+                          debug_dispatch_method=False,
+                          template_name="account/account_form_as_ul.html",
+                          delete_token_after_use=True),
         name='login'),
 
-    url(r'^login2$',
-        AccountLoginView.as_view(redirect_to='/', use_captcha=True),
-        name='login'),
-
-    url(r'^logout$',
-        AccountLogoutView.as_view(redirect_to='/'),
+    url(r'^logout/$',
+        LogoutView.as_view(redirect_to='/', clean_response_cookies=True, debug_dispatch_method=False),
         name='logout'),
 
-    url(r'^signup_mine$',
-        AccountSignupView.as_view(model=Account),
-        name='signup-mine'),
-
-
-    url(r'^chprofile(/(?P<slug>.*))?$',
-        login_required(AccountUpdateView.as_view(model=Account, slug_field='id', use_captcha=True,
-                                                 template_name="account/chprofile.html",
-                                                 success_url="/")),
-        name='chprofile'),
-
-    url(r'^viewprofile/(?P<slug>\d+)/$',
-        login_required(DetailView.as_view(model=Account,
-                                          template_name="account/profile.html",
-                                          slug_field="id",
-                                          context_object_name="account")),
-        name='viewprofile'),
-
-
-    url(r'^signup$', CreateView.as_view(model=Account,
-                                        template_name="registration/signup_as_p.html"),
+    url(r'^signup/$',
+        SignupView.as_view(model=Account, use_captcha=True,
+                           additional_exclude_formfields=['token', 'cash'],
+                           require_formfields=['email'],
+                           after_signup_callback=callback_on_signup,
+                           debug_dispatch_method=True, debug_dispatch_method_full=False,
+                           template_name="account/account_form_as_ul.html"),
         name='signup'),
 
-)
 
+    url(r'^password/change/((?P<slug>\d+)/)?$',
+        ChangePasswordView.as_view(model=Account, use_login_required_decorator=True,
+                                   template_name="account/account_form_as_ul.html",
+                                   change_done_template_name="account/pswchanged.html",
+                                   slug_field="id"),
+        name='chpsw'),
+
+    url(r'^password/forgot/((?P<token>.+)/)?$',
+        ForgotPasswordView.as_view(template_name="account/forgot.html",
+                                   change_password_named_url='chpsw'),
+        name='forgotpsw'),
+
+
+    url(r'^chprofile/(?P<slug>.*)/$',
+        UpdateView.as_view(model=Account, slug_field='id', additional_exclude_formfields=['token', 'cash'],
+                           use_captcha=False, use_login_required_decorator=True,
+                           template_name="account/account_form_as_ul.html",
+                           success_url="/"),
+        name='chprofile'),
+
+    url(r'^profile/((?P<slug>\d+)/?)?$',
+        DetailView.as_view(model=Account, use_login_required_decorator=True,
+                           template_name="account/profile.html",
+                           slug_field="id",
+                           context_object_name="account"),
+        name='profile'),
+)

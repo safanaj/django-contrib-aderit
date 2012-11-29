@@ -1,9 +1,45 @@
+{# could be a variable instance 'base_template_name' in GenericUtilView #}
 {% extends "base.html" %}
 {% load i18n %}
+{% block title %}{% trans "Modifica Profilo" %}{% endblock %}
+{% block extra-head %}
+{% endblock %}
 
 {% block content %}
-<form method="post">{% csrf_token %}
-{{form.as_ul}}
-<input type="submit" value="submit" />
+<form action="" method="post" class="form-horizontal">{% csrf_token %}
+  <div class="row">
+    <div class="span6 offset3">
+
+      <h4>{% trans "Dati personali" %}</h4>
+
+      {% include "snippets/formfield_as_bootstrap_div.html" with field=form.first_name %}
+      {% include "snippets/formfield_as_bootstrap_div.html" with field=form.last_name %}
+
+      <h4>{% trans "Dati aziendali" %}</h4>
+
+      {% include "snippets/formfield_as_bootstrap_div.html" with field=form.company %}
+      {% include "snippets/formfield_as_bootstrap_div.html" with field=form.email %}
+      {% include "snippets/formfield_as_bootstrap_div.html" with field=form.address %}
+      {% include "snippets/formfield_as_bootstrap_div.html" with field=form.zip_code %}
+      {% include "snippets/formfield_as_bootstrap_div.html" with field=form.location %}
+      {% include "snippets/formfield_as_bootstrap_div.html" with field=form.country %}
+      {% include "snippets/formfield_as_bootstrap_div.html" with field=form.phone %}
+      {% include "snippets/formfield_as_bootstrap_div.html" with field=form.mobile_phone %}
+
+      <h4>{% trans "Dati di fatturazione" %}</h4>
+
+      {% include "snippets/formfield_as_bootstrap_div.html" with field=form.vat %}
+      {% include "snippets/formfield_as_bootstrap_div.html" with field=form.want_billing %}
+      {% include "snippets/formfield_as_bootstrap_div.html" with field=form.email_billing %}
+
+      <input type="hidden" name="{{form.reported_by.html_name}}" value="{{form.reported_by.value}}"/>
+      <div class="control-group">
+	<div class="controls"><button type="submit" value="submit" class="btn">{% trans 'Submit' %}</button></div>
+      </div>
+
+    </div>
+  </div>
 </form>
+<div class="row"><div class="span2 offset9"><p><strong>*</strong> {% trans "Campo obbligatorio" %}</p></div></div>
 {% endblock %}
+

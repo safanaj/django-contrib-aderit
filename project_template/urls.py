@@ -1,5 +1,4 @@
-#from django.conf.urls.defaults import patterns, include, url
-from django.conf.urls.defaults import *
+from django.conf.urls.defaults import patterns, include, url
 from django.views.generic import TemplateView, ListView, DetailView
 from django.conf import settings
 
@@ -19,6 +18,9 @@ urlpatterns = patterns('',
 
     # Uncomment the next line to enable the admin:
     url(r'^admin/', include(admin.site.urls)),
+
+    # UserProfile and auth urls
+    url(r'^access/', include('account.urls')),
 
     # Alternatively served by Web Server
     url(r'^static/(?P<path>.*)$', 'django.contrib.staticfiles.views.serve',

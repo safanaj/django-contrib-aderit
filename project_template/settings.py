@@ -7,6 +7,7 @@ import os
 gettext = lambda s: s
 
 PROJECT_PATH = os.path.abspath(os.path.dirname(__file__))
+PROJECT_NAME = os.path.basename(PROJECT_PATH)
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -40,7 +41,7 @@ TIME_ZONE = 'Europe/Rome'
 # Language code for this installation. All choices can be found here:
 # http://www.i18nguy.com/unicode/language-identifiers.html
 LANGUAGE_CODE = 'it'
-LANGUAGES = [('it', 'Italian'),]
+LANGUAGES = [('it', 'Italian'), ('en', 'English')]
 
 SITE_ID = 1
 
@@ -68,7 +69,7 @@ MEDIA_URL = '/media/'
 # Don't put anything in this directory yourself; store your static files
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
 # Example: "/home/media/media.lawrence.com/static/"
-STATIC_ROOT = os.path.join(PROJECT_PATH, 'static')
+STATIC_ROOT = os.path.join(PROJECT_PATH, 'static_collected')
 
 # URL prefix for static files.
 # Example: "http://media.lawrence.com/static/"
@@ -81,6 +82,10 @@ STATICFILES_DIRS = (
     # Put strings here, like "/home/html/static" or "C:/www/django/static".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.    
+
+    # decommnet below line after './run.sh collectstatic' to override static files
+    #os.path.join(PROJECT_PATH, '%s_static' % PROJECT_NAME.lower()),
+    os.path.join(PROJECT_PATH, 'static'),
 )
 
 # List of finder classes that know how to find static files in
@@ -133,7 +138,7 @@ TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
-
+    os.path.join(PROJECT_PATH, '%s_templates' % PROJECT_NAME.lower()),
     os.path.join(PROJECT_PATH, 'templates'),
 )
 
@@ -157,25 +162,41 @@ INSTALLED_APPS = (
     #'dajaxice',
     
     'django.contrib.aderit.generic_utils',
-    #'django.contrib.aderit.send_mail',
+    'django.contrib.aderit.send_mail',
     #'captcha',
     #'django.contrib.aderit.access_account',
-    #'account',
+    'account',
 )
 
 # Some frequent used settings
 #SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 #SESSION_COOKIE_AGE = 3600
 #SESSION_SAVE_EVERY_REQUEST = True
-#LOGIN_URL = "/access"
+LOGIN_URL = "/access"
 #LOGIN_REDIRECT_URL
 #ACCESS_ACCOUNT_USE_CAPTCHA = False
 
-#AUTH_PROFILE_MODULE = 'account.Account'
+AUTH_PROFILE_MODULE = 'account.Account'
 
 #DAJAXICE_MEDIA_PREFIX="dajaxice"
 
 #CAPTCHA_FONT_SIZE = 50
+
+# EMAIL_HOST = 'localhost'
+# SEND_MAIL_ON_ACQUIRE = False
+# SEND_MAIL_ON_ACQUIRE_TYPE_NAME = 'onacquire'
+# SEND_MAIL_ON_LOGIN = False
+# SEND_MAIL_ON_LOGIN_TYPE_NAME = 'onlogin'
+# SEND_MAIL_ON_CHARGE = False
+# SEND_MAIL_ON_CHARGE_TYPE_NAME = 'oncharge'
+# SEND_MAIL_ON_SIGNUP = False
+# SEND_MAIL_ON_SIGNUP_TYPE_NAME = 'onsignup'
+# SEND_MAIL_TO_ADMIN_ON_SIGNUP = False
+# SEND_MAIL_ON_SIGNUP_TO_ADMIN_TYPE_NAME = 'onsignup2admin'
+
+# Variabili per logging #####################################
+_LOG_VERBOSE_FORMAT = '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
+_LOG_SIMPLE_FORMAT = '%(asctime)s %(name)s:%(levelname)s:%(lineno)d: %(message)s'
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
@@ -185,49 +206,58 @@ INSTALLED_APPS = (
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
-    #'filters': {
-    #    'require_debug_false': {
-    #        '()': 'django.utils.log.RequireDebugFalse'
-    #    }
-    #},
+    'filters': {
+        'require_debug_false': {
+            '()': 'django.utils.log.RequireDebugFalse'
+            }
+        },
+    'formatters': {
+        'verbose': {
+            'format': _LOG_VERBOSE_FORMAT
+            },
+        'simple': {
+            'format': _LOG_SIMPLE_FORMAT
+            },
+        },
     'handlers': {
         'mail_admins': {
             'level': 'ERROR',
-            #'filters': ['require_debug_false'],
+            'filters': ['require_debug_false'],
             'class': 'django.utils.log.AdminEmailHandler'
-        },
+            },
         'console': {'class': 'logging.StreamHandler'},
         'syslog': {'class': 'logging.handlers.SysLogHandler'},
-
-
-    },
+        'filelog': {'class': 'logging.FileHandler', 'level':'ERROR',
+                    'filename': '/var/log/django/%s/error.log' % PROJECT_NAME.lower(),
+                    'formatter': 'simple'},
+        'account': {'class': 'logging.FileHandler',
+                    'filename': '/var/log/django/%s/account.log' % PROJECT_NAME.lower(),
+                    'formatter': 'simple'},
+        'aderit': {'class': 'logging.FileHandler',
+                   'filename': '/var/log/django/%s/aderit.log' % PROJECT_NAME.lower(),
+                   'formatter': 'simple'},
+        'debug': {'class': 'logging.FileHandler', 'level':'DEBUG',
+                  'filename': '/var/log/django/%s/debug.log' % PROJECT_NAME.lower(),
+                  'formatter': 'simple'},
+        },
     'loggers': {
         'django.request': {
             'handlers': ['mail_admins'],
             'level': 'ERROR',
             'propagate': True,
-        },
+            },
         
         'django.db.backends':{'handlers': ['console', 'syslog'], 'level':'INFO', 'propagate':True},
         'django.console':{'handlers': ['console'], 'level':'INFO', 'propagate':True},
         'django.syslog':{'handlers': ['syslog'], 'level':'INFO', 'propagate':True},
         'django.console.debug':{'handlers': ['console'], 'level':'DEBUG', 'propagate':True},
         'django.syslog.debug':{'handlers': ['syslog'], 'level':'DEBUG', 'propagate':True},
-        'django.debug':{'handlers': ['console', 'syslog'], 'level':'DEBUG', 'propagate':True},
-    }
+        'django.debug':{'handlers': ['console', 'syslog', 'debug'],
+                        'level':'DEBUG', 'propagate':True},
+        'account':{'handlers': ['filelog', 'debug', 'account'], 'level':'DEBUG', 'propagate':True},
+        'aderit':{'handlers': ['filelog', 'debug', 'aderit'], 'level':'DEBUG', 'propagate':True},
+        }
 }
-
-# Some frequent used settings
-#SESSION_EXPIRE_AT_BROWSER_CLOSE = True
-#SESSION_COOKIE_AGE = 3600
-#SESSION_SAVE_EVERY_REQUEST = True
-#LOGIN_URL = "/access"
-#LOGIN_REDIRECT_URL
-#ACCESS_ACCOUNT_USE_CAPTCHA = False
-
-#DAJAXICE_MEDIA_PREFIX="dajaxice"
-
-#CAPTCHA_FONT_SIZE = 50
 
 ### other settings to override
 
