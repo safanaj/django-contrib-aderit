@@ -21,7 +21,7 @@ MANAGERS = ADMINS
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3', 
-        'NAME': os.path.join(PROJECT_PATH, '@PROJECT@.db'), # Or path to database file if using sqlite3.
+        'NAME': os.path.join(PROJECT_PATH, '%s.db' % '@PROJECT@'), # Or path to database file if using sqlite3.
         'USER': '',                      # Not used with sqlite3.
         'PASSWORD': '',                  # Not used with sqlite3.
         'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
@@ -116,9 +116,9 @@ MIDDLEWARE_CLASSES = (
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
 
     #'django.middleware.locale.LocaleMiddleware',
-    #'django.contrib.aderit.generic_utils.langMiddleware.SessionBasedLocaleMiddleware',
-    #'django.contrib.aderit.generic_utils.currentUserMiddleware.LocalUserMiddleware',
-    #'django.contrib.aderit.generic_utils.mobileMiddleware.MobileDetectionMiddleware',
+    #'django.contrib.aderit.generic_utils.middleware.SessionBasedLocaleMiddleware',
+    #'django.contrib.aderit.generic_utils.middleware.LocalUserMiddleware',
+    #'django.contrib.aderit.generic_utils.middleware.MobileDetectionMiddleware',
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = (
@@ -129,10 +129,10 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'django.core.context_processors.static',
 )
 
-ROOT_URLCONF = '@PROJECT@.urls'
+ROOT_URLCONF = '%s.urls' % PROJECT_NAME
 
 # Python dotted path to the WSGI application used by Django's runserver.
-WSGI_APPLICATION = '@PROJECT@.wsgi.application'
+WSGI_APPLICATION = '%s.wsgi.application' % PROJECT_NAME
 
 TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
