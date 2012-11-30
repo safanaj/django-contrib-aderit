@@ -11,7 +11,7 @@ Package: python-django-contrib-aderit
 Section: python
 Priority: extra
 Architecture: all
-Depends: ${misc:Depends}, ${python:Depends}, python-django, pwgen,
+Depends: ${misc:Depends}, python (>= 2.6), python-django, pwgen,
  python-werkzeug, python-django-south | python-south,
  python-django-dajaxice, python-django-dajax
 Recommends: python-django-simple-captcha, python-django-treemenus
