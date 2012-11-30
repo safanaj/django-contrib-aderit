@@ -1,1 +1,9 @@
+*~
+*.py[co]
+build
 debian/changelog
+debian/*.debhelper.log
+debian/*.debhelper
+debian/*.substvars
+debian/python-django-contrib-aderit
+debian/files
