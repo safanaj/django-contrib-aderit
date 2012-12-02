@@ -1,0 +1,14 @@
+This file describe policy to hacking and release debian package
+---------------------------------------------------------------
+
+how to release:
+    $ dch -c debian/changelog.git
+    $ autoconf && ./configure --with-release=unstable
+    $ debuild -uc -us
+    $ git commit -- setup.py debian/changlog.git
+    $ git tag v@PACKAGE_VERSION@
+    $ git push
+    $ dupload ....
+
+TODO more explication
+

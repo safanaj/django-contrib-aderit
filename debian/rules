@@ -2,8 +2,12 @@
 include /usr/share/python/python.mk
 export DH_VERBOSE = 1
 
+override_dh_auto_configure:
+	@echo "Generated only setup.py"
+
 ov=$(shell dpkg-parsechangelog | grep ^Version | cut -d' ' -f2 | cut -d'-' -f1)
 pn=$(shell dpkg-parsechangelog | grep ^Source | cut -d' ' -f2)
+
 
 override_dh_python2:
 	dh_python2 --skip-private
@@ -28,5 +32,5 @@ git-orig-source:
 	-rm -rf $(pn)-$(ov)
 
 %:
+	#dh $@ --with python2 --without autoreconf
 	dh $@ --with python2
-
