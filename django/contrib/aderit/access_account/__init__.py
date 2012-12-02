@@ -1,7 +1,34 @@
+# pylint: disable-msg=C0301,C0103
+# -*- coding: utf-8 -*-
+# vim: set fileencoding=utf-8 :
+# django.contrib.aderit.access_account -- python module for auth management
+#
+# Copyright (C) 2012 Aderit srl
+#
+# Author: Marco Bardelli <marco.bardelli@aderit.it>, <bardelli.marco@gmail.com>
+#
+# This file is part of DjangoContribAderit.
+#
+# DjangoContribAderit is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# DjangoContribAderit is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with DjangoContribAderit.  If not, see <http://www.gnu.org/licenses/>.
+'''User profile management'''
+__copyright__ = '''Copyright (C) 2012 Aderit srl'''
+
 from django.conf import settings
 from django.contrib.auth.models import SiteProfileNotAvailable
 from django.utils.translation import ugettext as _
 from django.db.models.loading import get_model
+
 
 def _get_model_from_auth_profile_module():
     """

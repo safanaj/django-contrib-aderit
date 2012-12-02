@@ -8,16 +8,39 @@ pn=$(shell dpkg-parsechangelog | grep ^Source | cut -d' ' -f2)
 override_dh_python2:
 	dh_python2 --skip-private
 
-override_dh_install:
-	dh_testdir
-	dh_testroot
-	dh_install
-	-mkdir -p debian/python-django-contrib-aderit/usr/share/python-django-contrib-aderit debian/python-django-contrib-aderit/usr/bin
-	cp -rf project_template debian/python-django-contrib-aderit/usr/share/python-django-contrib-aderit/
-	cp -f django-admin-aderit debian/python-django-contrib-aderit/usr/bin
-	chmod +x debian/python-django-contrib-aderit/usr/bin/django-admin-aderit
-
-
+## temporary fix incompatible changes introduced in 1.4.6
+## (needed for ULISSE and UDA)
+py26_libdir = usr/lib/python2.6/$(call py_sitename, 2.6)
+py27_libdir = usr/lib/python2.7/$(call py_sitename, 2.7)
+pyshared_dir = usr/share/pyshared
+g_utils = django/contrib/aderit/generic_utils
+send_mail_path = django/contrib/aderit/send_mail
+override_dh_link:
+	dh_link -v \
+		$(pyshared_dir)/$(g_utils)/middleware.py \
+		$(pyshared_dir)/$(g_utils)/currentUserMiddleware.py \
+		$(pyshared_dir)/$(g_utils)/middleware.py \
+		$(pyshared_dir)/$(g_utils)/langMiddleware.py \
+		$(pyshared_dir)/$(g_utils)/middleware.py \
+		$(pyshared_dir)/$(g_utils)/mobileMiddleware.py \
+		$(pyshared_dir)/$(send_mail_path)/__init__.py \
+		$(pyshared_dir)/$(send_mail_path)/views.py \
+		$(py26_libdir)/$(g_utils)/middleware.py \
+		$(py26_libdir)/$(g_utils)/currentUserMiddleware.py \
+		$(py26_libdir)/$(g_utils)/middleware.py \
+		$(py26_libdir)/$(g_utils)/langMiddleware.py \
+		$(py26_libdir)/$(g_utils)/middleware.py \
+		$(py26_libdir)/$(g_utils)/mobileMiddleware.py \
+		$(py26_libdir)/$(send_mail_path)/__init__.py \
+		$(py26_libdir)/$(send_mail_path)/views.py \
+		$(py27_libdir)/$(g_utils)/middleware.py \
+		$(py27_libdir)/$(g_utils)/currentUserMiddleware.py \
+		$(py27_libdir)/$(g_utils)/middleware.py \
+		$(py27_libdir)/$(g_utils)/langMiddleware.py \
+		$(py27_libdir)/$(g_utils)/middleware.py \
+		$(py27_libdir)/$(g_utils)/mobileMiddleware.py \
+		$(py27_libdir)/$(send_mail_path)/__init__.py \
+		$(py27_libdir)/$(send_mail_path)/views.py
 
 git-orig-source:
 	-rm -rf $(pn)-$(ov)

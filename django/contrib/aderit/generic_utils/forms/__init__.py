@@ -1,63 +1,101 @@
-__doc__ = "Generic forms and form factory utils"
+# pylint: disable-msg=C0103,R0912,R0913,R0915
+# -*- coding: utf-8 -*-
+# vim: set fileencoding=utf-8 :
+# django.contrib.aderit.generic_utils.forms -- generic formclass factory
+#
+# Copyright (C) 2012 Aderit srl
+#
+# Author: Marco Bardelli <marco.bardelli@aderit.it>, <bardelli.marco@gmail.com>
+#
+# This file is part of DjangoContribAderit.
+#
+# DjangoContribAderit is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# DjangoContribAderit is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with DjangoContribAderit.  If not, see <http://www.gnu.org/licenses/>.
+'''Generic forms and form factory utils'''
+__copyright__ = '''Copyright (C) 2012 Aderit srl'''
+
 from types import ClassType
 from django.db import models as django_models
-from django.forms.models import modelform_factory, modelformset_factory, BaseModelForm
+from django.forms.models import (modelform_factory,
+                                 modelformset_factory,
+                                 BaseModelForm)
 from django.forms.formsets import formset_factory
 from django.forms.forms import BaseForm, Form
 from django.utils.datastructures import SortedDict
 
-def generic_formclass_factory(classes, bases=[], prepend_fields=False,
+
+def generic_formclass_factory(classes, bases=None, prepend_fields=False,
                               fields_uniqueness=True, uniqueness_prefix='',
                               sorted_fields=SortedDict()):
     """
-    General form factory, inspired from 'django.forms.models.modelform_factory'.
+    General form factory,
+    inspired from 'django.forms.models.modelform_factory'.
 
     @classes should be a list of: Model or ModelForm or Form based classes.
     @sorted_fields values should be 'django.forms.fields.Field' based class.
-       es: generic_formclass_factory(..., prepend_fields=True,
-                                     sorted_fields=SortedDict({
-                                        'mail_address' : django.forms.fields.CharField(),
-                                        'age' : django.forms.fields.IntegerField(min_value=0),
-                                        'birthday' : django.forms.fields.DateField() }))
+       es: generic_formclass_factory(...,
+                 prepend_fields=True,
+                 sorted_fields=SortedDict({
+                        'mail_address' : django.forms.fields.CharField(),
+                        'age' : django.forms.fields.IntegerField(min_value=0),
+                        'birthday' : django.forms.fields.DateField() }))
            generate a Form class based which base_fields are:
            {
-           'mail_address' : <CharField object>, 'age': <positive IntegerField object>,
+           'mail_address' : <CharField object>,
+           'age': <positive IntegerField object>,
            'birthday': <DateField object>,
            ... other forms fields from classes ...
            }
            to produce:
-           <input type="text" name='mail_address' value="... some initial value..." /> etc ...
+           <input type="text" name='mail_address'
+                  value="... some initial value..." /> etc ...
 
     @prepend_fields: if True, keywords fields are prepended insted appended.
-    @fields_uniqueness and @uniqueness_prefix to avoid several base_fields override other base_fields
+    @fields_uniqueness and @uniqueness_prefix to avoid several base_fields
+    override other base_fields
 
-    TODO: add keywords to more flexibility and to control modelform_factory (see can_delete for checkbox)
+    TODO: add keywords to more flexibility and to control modelform_factory
+          (see can_delete for checkbox)
     """
-    def make_fields_unique(fields, prefix=uniqueness_prefix, prepending=SortedDict(), appending=SortedDict()):
+    def make_fields_unique(fields, prefix=uniqueness_prefix,
+                           prepending=SortedDict(),
+                           appending=SortedDict()):
         uniq_fields = SortedDict()
         for i, kv in enumerate(prepending.items()):
             if kv[0] in fields:
                 if "%s%s" % (prefix, kv[0]) in fields:
                     idx = "_%d" % i
-                    uniq_fields.update({ prefix + kv[0] + idx : kv[1] })
+                    uniq_fields.update({prefix + kv[0] + idx: kv[1]})
                 else:
-                    uniq_fields.update({ prefix + kv[0] : kv[1] })
+                    uniq_fields.update({prefix + kv[0]: kv[1]})
             else:
-                uniq_fields.update({ kv[0] : kv[1] })
+                uniq_fields.update({kv[0]: kv[1]})
         uniq_fields.update(fields)
         for i, kv in enumerate(appending.items()):
             if kv[0] in fields:
                 if "%s%s" % (prefix, kv[0]) in fields:
                     idx = "_%d" % i
-                    uniq_fields.update({ prefix + kv[0] + idx : kv[1] })
+                    uniq_fields.update({prefix + kv[0] + idx: kv[1]})
                 else:
-                    uniq_fields.update({ prefix + kv[0] : kv[1] })
+                    uniq_fields.update({prefix + kv[0]: kv[1]})
             else:
-                uniq_fields.update({ kv[0] : kv[1] })
+                uniq_fields.update({kv[0]: kv[1]})
         return uniq_fields
 
     if not isinstance(classes, (list, tuple)):
         classes = [classes]
+    if bases is None:
+        bases = []
     if len(bases) < 1:
         bases.append(Form)
     new_form_class = type("GenericForm", tuple(bases), {})
@@ -65,18 +103,19 @@ def generic_formclass_factory(classes, bases=[], prepend_fields=False,
     if prepend_fields:
         prepended_base_fields = sorted_fields
         if fields_uniqueness:
-            prepended_base_fields = make_fields_unique(new_form_class.base_fields,
-                                                       prepending=prepended_base_fields)
+            prepended_base_fields = \
+                make_fields_unique(new_form_class.base_fields,
+                                   prepending=prepended_base_fields)
         else:
             prepended_base_fields.update(new_form_class.base_fields)
         new_form_class.base_fields = prepended_base_fields
 
     for klass in classes:
-        if not isinstance(klass, (type, ClassType)): # klass is an instance
+        if not isinstance(klass, (type, ClassType)):  # klass is an instance
             klass = getattr(klass, '__class__', None)
         if klass is None:
             continue  # skip None class
-        if issubclass(klass, django_models.Model): # use modelform_factory
+        if issubclass(klass, django_models.Model):  # use modelform_factory
             if fields_uniqueness:
                 appending_fields = modelform_factory(klass).base_fields
                 klass_prefix = "%s_" % klass.__name__.lower()
@@ -85,8 +124,10 @@ def generic_formclass_factory(classes, bases=[], prepend_fields=False,
                                                  appending=appending_fields)
                 new_form_class.base_fields.update(uniq_fields)
             else:
-                new_form_class.base_fields.update(modelform_factory(klass).base_fields)
-        elif issubclass(klass, (BaseModelForm, BaseForm)) and hasattr(klass, 'base_fields'):
+                new_form_class.base_fields\
+                    .update(modelform_factory(klass).base_fields)
+        elif issubclass(klass, (BaseModelForm, BaseForm)) and \
+                hasattr(klass, 'base_fields'):
             if fields_uniqueness:
                 klass_prefix = "%s_" % klass.__name__.lower()
                 uniq_fields = make_fields_unique(new_form_class.base_fields,
@@ -105,4 +146,3 @@ def generic_formclass_factory(classes, bases=[], prepend_fields=False,
             new_form_class.base_fields.update(sorted_fields)
 
     return new_form_class
-

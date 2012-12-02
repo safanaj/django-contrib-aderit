@@ -24,9 +24,9 @@ urlpatterns = patterns('',
 
     # Alternatively served by Web Server
     url(r'^static/(?P<path>.*)$', 'django.contrib.staticfiles.views.serve',
-        {'show_indexes':True, 'document_root': settings.STATIC_ROOT}),
+        {'show_indexes': True, 'document_root': settings.STATIC_ROOT}),
     url(r'^media/(?P<path>.*)$', 'django.contrib.staticfiles.views.serve',
-        {'show_indexes':True, 'document_root': settings.MEDIA_ROOT}),
+        {'show_indexes': True, 'document_root': settings.MEDIA_ROOT}),
     url(r'^robots.txt/', TemplateView.as_view(template_name='robots.txt')),
     url(r'^$', TemplateView.as_view(template_name='index.html')),
 

@@ -11,6 +11,7 @@ if root_dir != '':
     os.chdir(root_dir)
 django_contrib_aderit_root_dir = 'django'
 
+
 def fullsplit(path, result=None):
     """
     Split a pathname into components (the opposite of os.path.join) in a
@@ -28,18 +29,30 @@ def fullsplit(path, result=None):
 for dirpath, dirnames, filenames in os.walk(django_contrib_aderit_root_dir):
     # Ignore dirnames that start with '.'
     for i, dirname in enumerate(dirnames):
-        if dirname.startswith('.'): del dirnames[i]
+        if dirname.startswith('.'):
+            del dirnames[i]
     if '__init__.py' in filenames:
         packages.append('.'.join(fullsplit(dirpath)))
     elif filenames:
-        data_files.append([os.path.join(get_python_lib(), dirpath), [os.path.join(dirpath, f) for f in filenames]])
+        data_files.append([os.path.join(get_python_lib(), dirpath),
+                           [os.path.join(dirpath, f) for f in filenames]])
+
+project_template_prefix = 'share/python-django-contrib-aderit'
+for dirpath, dirnames, filenames in os.walk('project_template'):
+    for i, dirname in enumerate(dirnames):
+        if dirname.startswith('.'):
+            del dirnames[i]
+    if filenames:
+        data_files.append([os.path.join(project_template_prefix, dirpath),
+                           [os.path.join(dirpath, f) for f in filenames]])
 
 setup(name='DjangoContribAderit',
-      version='1.4.5.1',
+      version='1.4.6',
       description='Collection of Aderit tools for Django',
       author='Matteo Atti',
       author_email='matteo.atti@aderit.it',
       packages=packages,
       data_files=data_files,
+      scripts=['django-admin-aderit'],
       requires=['Django (>=1.3)']
 )

@@ -1,0 +1,60 @@
+django-contrib-aderit (1.4.6~pre) veryunstable; urgency=low
+
+  * NMU: Pre release 1.4.6
+  * debian/rules: temporary symlink some moved pymodules
+  * debian/rules: do not override_dh_install, setup.py do all
+  * added debian/copyright
+  * git rev: 716aa89afdfecf0d6690ba13fb1757ed8ee2be9d
+  * temporary added debian/changelog.git to git branch copyright-added
+    to reintroduce debian/changelog in git, maybe using autoconf
+  
+ -- Marco Bardelli <marco.bardelli@aderit.it>  Mon, 03 Dec 2012 01:58:53 +0100
+
+django-contrib-aderit (1.4.5) unstable; urgency=low
+
+  * NMU: New release
+  * fix senf_mail in bulk
+  * generic_utils middlware reorganized
+
+ -- Marco Bardelli <marco.bardelli@aderit.it>  Fri, 30 Nov 2012 10:33:30 +0100
+
+django-contrib-aderit (1.4.4.1) unstable; urgency=low
+
+  * NMU: New minor release bugfix in SignupView
+
+ -- Marco Bardelli <marco.bardelli@aderit.it>  Mon, 19 Nov 2012 13:49:52 +0100
+
+django-contrib-aderit (1.4.4) unstable; urgency=low
+
+  * NMU: bump version
+  * added lintian-overrides
+  * several improvement in access_account
+  * fix send_mail
+  * some fix breadcrumb
+
+ -- Marco Bardelli <marco.bardelli@aderit.it>  Thu, 08 Nov 2012 11:06:15 +0100
+
+django-contrib-aderit (1.4.3.3) unstable; urgency=low
+  * New minor release
+  * [FIX] generic_formclass_factory
+
+ -- Marco Bardelli <marco.bardelli@aderit.it>  Wed, 07 Nov 2012 13:23:49 +0100
+
+django-contrib-aderit (1.4.3.2) veryunstable; urgency=low
+
+  * New minor release
+
+ -- Marco Bardelli <marco.bardelli@aderit.it>  Wed, 07 Nov 2012 13:06:39 +0100
+
+django-contrib-aderit (1.4.3.1) veryunstable; urgency=low
+
+  * Fix syntax error in access_account/backends.py
+
+ -- Marco Bardelli <marco.bardelli@aderit.it>  Wed, 07 Nov 2012 12:05:46 +0100
+
+django-contrib-aderit (1.4.3) veryunstable; urgency=low
+
+  * Fix send_mail error
+  * Improve access_account SignupView
+
+ -- Marco Bardelli <marco.bardelli@aderit.it>  Wed, 07 Nov 2012 11:50:22 +0100
