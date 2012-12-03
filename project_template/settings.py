@@ -20,8 +20,8 @@ MANAGERS = ADMINS
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3', 
-        'NAME': os.path.join(PROJECT_PATH, '%s.db' % '@PROJECT@'), # Or path to database file if using sqlite3.
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(PROJECT_PATH, '%s.db' % '@PROJECT@'),  # Or path to database file if using sqlite3.
         'USER': '',                      # Not used with sqlite3.
         'PASSWORD': '',                  # Not used with sqlite3.
         'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
@@ -75,13 +75,13 @@ STATIC_ROOT = os.path.join(PROJECT_PATH, 'static_collected')
 # Example: "http://media.lawrence.com/static/"
 STATIC_URL = '/static/'
 
-ADMIN_MEDIA_PREFIX = os.path.join(STATIC_URL,'admin/')
+ADMIN_MEDIA_PREFIX = os.path.join(STATIC_URL, 'admin/')
 
 # Additional locations of static files
 STATICFILES_DIRS = (
     # Put strings here, like "/home/html/static" or "C:/www/django/static".
     # Always use forward slashes, even on Windows.
-    # Don't forget to use absolute paths, not relative paths.    
+    # Don't forget to use absolute paths, not relative paths.
 
     # decommnet below line after './run.sh collectstatic' to override static files
     #os.path.join(PROJECT_PATH, '%s_static' % PROJECT_NAME.lower()),
@@ -160,7 +160,7 @@ INSTALLED_APPS = (
 
     #'dajax',
     #'dajaxice',
-    
+
     'django.contrib.aderit.generic_utils',
     'django.contrib.aderit.send_mail',
     #'captcha',
@@ -227,17 +227,21 @@ LOGGING = {
             },
         'console': {'class': 'logging.StreamHandler'},
         'syslog': {'class': 'logging.handlers.SysLogHandler'},
-        'filelog': {'class': 'logging.FileHandler', 'level':'ERROR',
-                    'filename': '/var/log/django/%s/error.log' % PROJECT_NAME.lower(),
+        'filelog': {'class': 'logging.FileHandler', 'level': 'ERROR',
+                    'filename': '/var/log/django/%s/error.log' %
+                    PROJECT_NAME.lower(),
                     'formatter': 'simple'},
         'account': {'class': 'logging.FileHandler',
-                    'filename': '/var/log/django/%s/account.log' % PROJECT_NAME.lower(),
+                    'filename': '/var/log/django/%s/account.log' %
+                    PROJECT_NAME.lower(),
                     'formatter': 'simple'},
         'aderit': {'class': 'logging.FileHandler',
-                   'filename': '/var/log/django/%s/aderit.log' % PROJECT_NAME.lower(),
+                   'filename': '/var/log/django/%s/aderit.log' %
+                   PROJECT_NAME.lower(),
                    'formatter': 'simple'},
-        'debug': {'class': 'logging.FileHandler', 'level':'DEBUG',
-                  'filename': '/var/log/django/%s/debug.log' % PROJECT_NAME.lower(),
+        'debug': {'class': 'logging.FileHandler', 'level': 'DEBUG',
+                  'filename': '/var/log/django/%s/debug.log' %
+                  PROJECT_NAME.lower(),
                   'formatter': 'simple'},
         },
     'loggers': {
@@ -246,16 +250,23 @@ LOGGING = {
             'level': 'ERROR',
             'propagate': True,
             },
-        
-        'django.db.backends':{'handlers': ['console', 'syslog'], 'level':'INFO', 'propagate':True},
-        'django.console':{'handlers': ['console'], 'level':'INFO', 'propagate':True},
-        'django.syslog':{'handlers': ['syslog'], 'level':'INFO', 'propagate':True},
-        'django.console.debug':{'handlers': ['console'], 'level':'DEBUG', 'propagate':True},
-        'django.syslog.debug':{'handlers': ['syslog'], 'level':'DEBUG', 'propagate':True},
-        'django.debug':{'handlers': ['console', 'syslog', 'debug'],
-                        'level':'DEBUG', 'propagate':True},
-        'account':{'handlers': ['filelog', 'debug', 'account'], 'level':'DEBUG', 'propagate':True},
-        'aderit':{'handlers': ['filelog', 'debug', 'aderit'], 'level':'DEBUG', 'propagate':True},
+
+        'django.db.backends': {'handlers': ['console', 'syslog'],
+                               'level': 'INFO', 'propagate': True},
+        'django.console': {'handlers': ['console'],
+                           'level': 'INFO', 'propagate': True},
+        'django.syslog': {'handlers': ['syslog'],
+                          'level': 'INFO', 'propagate': True},
+        'django.console.debug': {'handlers': ['console'],
+                         'level': 'DEBUG', 'propagate': True},
+        'django.syslog.debug': {'handlers': ['syslog'],
+                                'level': 'DEBUG', 'propagate': True},
+        'django.debug': {'handlers': ['console', 'syslog', 'debug'],
+                         'level': 'DEBUG', 'propagate': True},
+        'account': {'handlers': ['filelog', 'debug', 'account'],
+                    'level': 'DEBUG', 'propagate': True},
+        'aderit': {'handlers': ['filelog', 'debug', 'aderit'],
+                   'level': 'DEBUG', 'propagate': True},
         }
 }
 
@@ -275,4 +286,3 @@ try:
     from local_settings import *
 except ImportError:
     pass
-

@@ -1,3 +1,7 @@
+# -*- coding: utf-8  -*-
+# vim: set fileencoding=utf-8 :
+# pylint: disable-msg=C0103,C0301,W0613,W0702
+
 """
 A smarter {% if %} tag for django templates.
 
@@ -144,7 +148,7 @@ class SmartIfTests(unittest.TestCase):
         self.assertCalcFalse(GreaterOrEqual(self.low, self.high))
 
     def test_in(self):
-        list_ = TestVar([1,2,3])
+        list_ = TestVar([1, 2, 3])
         invalid_list = TestVar(None)
         self.assertCalc(In(self.low, list_))
         self.assertCalcFalse(In(self.low, invalid_list))

@@ -1,3 +1,15 @@
+django-contrib-aderit (1.4.6~pre) veryunstable; urgency=low
+
+  * NMU: Pre release 1.4.6
+  * debian/rules: temporary symlink some moved pymodules
+  * debian/rules: do not override_dh_install, setup.py do all
+  * added debian/copyright
+  * git rev: 716aa89afdfecf0d6690ba13fb1757ed8ee2be9d
+  * temporary added debian/changelog.git to git branch copyright-added
+    to reintroduce debian/changelog in git, maybe using autoconf
+  
+ -- Marco Bardelli <marco.bardelli@aderit.it>  Mon, 03 Dec 2012 01:58:53 +0100
+
 django-contrib-aderit (1.4.5) unstable; urgency=low
 
   * NMU: New release
