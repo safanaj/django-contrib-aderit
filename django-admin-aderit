@@ -118,6 +118,27 @@ EOF
     cd - 2>&1 1> /dev/null
 }
 
+write_run_sh_script()
+{
+    name="$1"
+    cat <<EOF > "$name"/run.sh
+#!/bin/sh
+
+test -r \$(basename \$(pwd) | tr A-Z a-z)_settings.py
+if test \$? -eq 0; then
+  DJANGO_SETTINGS_MODULE=\$(basename \$(pwd)).\$(basename \$(pwd) | tr A-Z a-z)_settings ;
+else
+  DJANGO_SETTINGS_MODULE=\$(basename \$(pwd)).settings
+fi
+PYTHONPATH=\$(dirname \$(pwd)):\$(pwd)
+export DJANGO_SETTINGS_MODULE PYTHONPATH
+
+django-admin \$@
+
+EOF
+
+}
+
 check_args "$@"
 test xyes = x"$with_git" && shift;
 
@@ -131,8 +152,10 @@ case "$CMD" in
 	SECRET=`pwgen -s -y 54 1 | sed -e "s_[\"']_+_g"`
 	sed -i -e "s,@PROJECT@,$NAME,g" -e "s'@SECRET@'$SECRET'g" "$NAME"/settings.py
 	touch "$NAME"/__init__.py
-	echo "#!/bin/sh" > "$NAME"/run.sh
-	echo "export DJANGO_SETTINGS_MODULE=\$(basename \$(pwd)).settings ; export PYTHONPATH=\$(dirname \$(pwd)):\$(pwd) ; django-admin \$@" >> "$NAME"/run.sh
+	write_run_sh_script $NAME
+	# echo "#!/bin/sh" > "$NAME"/run.sh
+	# echo "export DJANGO_SETTINGS_MODULE=\$(basename \$(pwd)).settings ; export PYTHONPATH=\$(dirname \$(pwd)):\$(pwd) ; django-admin \$@" >> "$NAME"/run.sh
+	# echo ""
 	chmod +x "$NAME"/run.sh
 	echo "Creato progetto in $NAME"
 	write_install_vh $NAME
