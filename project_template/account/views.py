@@ -19,9 +19,6 @@ from account.models import Account
 
 logger = getLogger('account.views')
 
-ALERT_ON_CHARGE = getattr(settings, 'SEND_MAIL_ON_CHARGE', False)
-ALERT_TYPE_NAME_ON_CHARGE = getattr(settings, 'SEND_MAIL_ON_CHARGE_TYPE_NAME', 'oncharge')
-
 
 class SignupView(AccessAccountSignupView):
 
