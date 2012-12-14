@@ -66,12 +66,16 @@ from django.contrib.aderit.access_account import \
     _get_model_from_auth_profile_module
 from django.contrib.aderit.access_account.tokens import \
     (make_random_expirable_token, make_random_unexpirable_token)
+from django.contrib.aderit.access_account.forms import \
+    (UserCreationEmailUniqueForm)
 
 ## SignupView settings
 DO_LOGIN_AFTER_SIGNUP = \
     getattr(settings, 'ACCESS_ACCOUNT_LOGIN_ON_SIGNUP', False)
 SIGNUP_USER_IS_ACTIVE = \
     getattr(settings, 'ACCESS_ACCOUNT_SIGNUP_USER_IS_ACTIVE', True)
+SIGNUP_EMAIL_UNIQUENESS = \
+    getattr(settings, 'ACCESS_ACCOUNT_SIGNUP_EMAIL_HAVE_TO_BE_UNIQUE', True)
 ## LoginView settings
 ALLOW_LOGIN_TO_AUTHENTICATED = \
     getattr(settings, 'ACCESS_ACCOUNT_ALLOW_LOGIN_TO_AUTHENTICATED', False)
@@ -393,13 +397,14 @@ class UpdateView(_UpdateView, CaptchableView):
 class SignupView(_CreateView, GenericProtectedUncacheableView, CaptchableView):
     model = _get_model_from_auth_profile_module()
     template_name = "registration/signup_as_ul.html"
-    user_create_form_class = UserCreationForm
+    user_create_form_class = (SIGNUP_EMAIL_UNIQUENESS and
+                              UserCreationEmailUniqueForm or UserCreationForm)
     formfields_uniqueness = False
     exclude_formfields = ['user', 'password', 'user_permissions',
                           'is_staff', 'is_superuser', 'is_active',
                           'groups', 'last_login', 'date_joined']
     additional_exclude_formfields = None
-    require_formfields = None
+    require_formfields = (SIGNUP_EMAIL_UNIQUENESS and ['email'] or None)
     login_after_signup = DO_LOGIN_AFTER_SIGNUP
     signup_user_is_active = SIGNUP_USER_IS_ACTIVE
     slug = None
@@ -543,12 +548,14 @@ class ForgotPasswordView(_FormView, CaptchableView):
     success_template_name = 'account/forgot_psw_ok.html'
     send_mail_type_name = 'forgot password'
     named_url = 'forgotpsw'
+    change_password_named_url = "chpasswd"
     delete_token_after_use = DELETE_TOKEN_AFTER_USE
+    password_reset_form_class = PasswordResetForm
+    admin_password_change_form_class = AdminPasswordChangeForm
     token = None
     token_field = 'token'
     success_url = '/'
     protocol_for_link = 'http'
-    change_password_named_url = "chpasswd"
     authenticated_goto_change_password = True
     use_db_for_token = USE_DB_FOR_TOKEN
     use_expirable_token = USE_EXPIRABLE_TOKEN
@@ -566,12 +573,14 @@ class ForgotPasswordView(_FormView, CaptchableView):
     def get_form_class(self):
         if self.token is not None and self.request.user.is_authenticated():
             ## here, from link in email sent yet
-            return generic_formclass_factory(AdminPasswordChangeForm)
+            _base_fk = self.admin_password_change_form_class
+            return generic_formclass_factory(bases=(_base_fk,))
         if self.request.user.is_authenticated() and \
                 not self.authenticated_goto_change_password:
-            return generic_formclass_factory(AdminPasswordChangeForm)
+            _base_fk = self.admin_password_change_form_class
+            return generic_formclass_factory(bases=(_base_fk,))
         ## token is None, ask for email to send
-        return generic_formclass_factory(PasswordResetForm)
+        return generic_formclass_factory(self.password_reset_form_class)
 
     def form_valid(self, form):
         if self.token is not None and \
@@ -615,8 +624,7 @@ class ForgotPasswordView(_FormView, CaptchableView):
             context.update({
                 'protocol': self.protocol_for_link,
                 'domain': get_current_site(self.request).domain,
-                'site_name': get_current_site(self.request).name
-            })
+                'site_name': get_current_site(self.request).name})
             _linkpath = "%s%s/" % (reverse(self.named_url), token)
             context.update({'resetpasswordlinkpath': _linkpath})
             _link = "%s://%s%s" % (context['protocol'],
