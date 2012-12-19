@@ -86,7 +86,10 @@ def create_subject_account(sender, instance, created, **kwargs):
     '''
     # TODO: valuate and make it configurable via settings
     if isinstance(instance, User):
-        account = instance.get_profile()
+        try:
+            account = instance.get_profile()
+        except:
+            return
     elif isinstance(instance, _get_model_from_auth_profile_module()):
         account = instance
     else:
@@ -95,20 +98,20 @@ def create_subject_account(sender, instance, created, **kwargs):
         return
 
     if created:
-        subject = Subject(state='active',
-                          surname=account.username,
-                          givenname=account.fullname,
-                          email=account.email)
-        subject.save()
-        account.subject = subject
-        account.save()
+        subject, created_subj = Subject.objects.get_or_create(state='active',
+                                                          surname=account.username,
+                                                          givenname=account.fullname,
+                                                          email=account.email)
+        if created_subj:
+            account.subject = subject
+            account.save()
     else:
         subject = account.subject
         if subject is None:
-            account.subject = Subject(state='active',
-                                      surname=account.username,
-                                      givenname=account.fullname,
-                                      email=account.email)
+            account.subject, created_subj = Subject.objects.get_or_create(state='active',
+                                                                           surname=account.username,
+                                                                           givenname=account.fullname,
+                                                                           email=account.email)
             account.subject.save()
             account.save()
             return
@@ -122,6 +125,6 @@ def create_subject_account(sender, instance, created, **kwargs):
         subject.save()
 
 
-# TO FIX !
+# TODO: Fix and do in better way!
 post_save.connect(create_subject_account,
                   sender=_get_model_from_auth_profile_module())
