@@ -27,7 +27,8 @@ __copyright__ = '''Copyright (C) 2012 Aderit srl'''
 from django.conf.urls.defaults import url, patterns
 from django.contrib.aderit.questionnaire_extensions.views import (ShowReport,
                                                                   ExportCsv,
-                                                                  SendInvitation)
+                                                                  SendInvitation,
+                                                                  ShowGraph)
 from django.utils.log import getLogger
 
 logger = getLogger('aderit.questionnaire_extensions.urls')
@@ -46,4 +47,8 @@ urlpatterns = patterns('',
                        url(r'^send/(?P<slug>\d+)/$',
                            SendInvitation.as_view(slug_field="id"),
                            name='sendinvitation'),
+                       url(r'^showgraph/(?P<slug>\d+)/$',
+                           ShowGraph.as_view(template_name="questionnaire/quest_graph.html",
+                                             slug_field="id"),
+                           name='showgraph'),
                        )

@@ -76,7 +76,7 @@
 <br/>
 <a href="{% url 'sendinvitation' slug=object_id %}">{% trans "Invia inviti per Questionario" %}</a><br/>
 <a href="{% url 'exportcsv' slug=object_id %}">{% trans "Esporta tutte le risposte in CSV" %}</a><br/>
-<a href="/survey/viewgraph/{{object_id}}#MUORI">{% trans "Visualizza statistiche risposte Questionario" %}</a> #TODO !!!<br/>
+<a href="{% url 'showgraph' slug=object_id %}" target="blank">{% trans "Visualizza statistiche risposte Questionario" %}</a><br/>
 {% for fieldset in adminform %}
   {% include "admin/includes/fieldset.html" %}
 {% endfor %}

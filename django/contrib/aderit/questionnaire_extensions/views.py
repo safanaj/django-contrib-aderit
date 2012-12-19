@@ -30,6 +30,7 @@ from django.conf import settings
 from django.views.generic.base import TemplateView
 from django.core.urlresolvers import reverse_lazy as reverse
 from django.http import HttpResponse, HttpResponseRedirect
+from django.template.response import TemplateResponse
 from django.utils.log import getLogger
 from django.utils.translation import ugettext_lazy as _
 from django.utils.decorators import method_decorator
@@ -40,7 +41,7 @@ from django.contrib.aderit.send_mail import SendTypeMail, SendTypeMailError
 from django.contrib.aderit.generic_utils.views import \
     (GenericUtilView, GenericProtectedView)
 from django.contrib.aderit.questionnaire_extensions.models import \
-    (RunInfo, Answer, RunInfoHistory, QuestionSet)
+    (RunInfo, Answer, RunInfoHistory, QuestionSet, Question)
 import re, random
 
 logger = getLogger('aderit.questionnaire_extensions.views')
@@ -187,7 +188,7 @@ class SendInvitation(GenericProtectedView):
         _subjects = self.account_model.objects.filter(questionnaires__id=qid)
         subjects = [i.subject for i in _subjects if i.subject is not None and i.subject.state == "active"]
         # non_auth_subjects = [s for s in Subjects.objects.exclude(id__in=[i.id for i in subjects]) if s.email]
-        logger.debug(subjects)
+        # logger.debug(subjects)
         # logger.debug(non_auth_subjects)
         for i in subjects:
             runinfo = RunInfo.objects.filter(subject=i,
@@ -232,3 +233,48 @@ class SendInvitation(GenericProtectedView):
             else:
                 logger.error("Situazione non corretta per subject %s", i.givenname)
         return HttpResponseRedirect(request.META['HTTP_REFERER'])
+
+
+class ShowGraph(TemplateView, GenericProtectedView):
+    slug = None
+    slug_field = 'id'
+    template_name = 'questionnaire/quest_graph.html'
+    account_model = _get_model_from_auth_profile_module()
+
+    @method_decorator(staff_member_required)
+    def dispatch(self, request, *args, **kwargs):
+        return super(ShowGraph, self).dispatch(request, *args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        qid = int(kwargs['slug'])
+        _subjects = self.account_model.objects.filter(questionnaires__id=qid)
+        subjects = [i.subject for i in _subjects if i.subject is not None and i.subject.state == "active"]
+        quest_comp = RunInfoHistory.objects.filter(questionnaire__id=qid)
+        comp = len(quest_comp)
+        quest_started = RunInfo.objects.filter(questionset__questionnaire__id=qid)
+        not_comp = len(quest_started)
+        not_invited = len(subjects) - comp - not_comp
+        logger.debug("COMPILATI %s -- NON COMPILATI %s -- META' %s", comp, not_comp, not_invited)
+        questions = Question.objects.filter(questionset__questionnaire=qid).order_by('id')
+        lista = []
+        lista_percent = []
+        for i in questions:
+            newdiz = {}
+            newdiz_percent = {}
+            lista.append((str(i.number) + " - " + i.text.replace("'","`"), newdiz))
+            lista_percent.append((str(i.number) + " - " + i.text.replace("'","`"), newdiz_percent))
+            tot = 0
+            totnumber = 1
+            for y in i.choices():
+                totnumber = len(Answer.objects.filter(question=i))
+                if totnumber == 0: totnumber = 1
+                numbers = len(Answer.objects.filter(question=i, answer__icontains=y.value))
+                tot += numbers
+                newdiz[y.text.replace("'","")] = numbers
+                newdiz_percent[y.text.replace("'","")] = round(float(numbers)/float(totnumber)*100,2)
+            if len(Answer.objects.filter(question=i)) > tot:
+                if totnumber == 0: totnumber = 1
+                newdiz["Risposta aperta"] = len(Answer.objects.filter(question=i)) - tot
+                lentot = len(Answer.objects.filter(question=i)) - tot
+                newdiz_percent["Risposta aperta"] = round(float(lentot)/float(totnumber)*100, 2)
+        return TemplateResponse(self.request, self.template_name, locals())

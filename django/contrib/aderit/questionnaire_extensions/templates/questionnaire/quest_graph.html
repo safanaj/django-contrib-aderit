@@ -1,0 +1,80 @@
+<html>
+  <head>
+    
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.3/jquery.min.js"></script>
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <link href="{{STATIC_URL}}css/bootstrap.min.css" rel="stylesheet" />
+    <style type="text/css">
+      div.allinea { float:left; border-bottom:1px solid grey;}
+    </style>
+
+    {% load i18n %}
+
+    <script type="text/javascript">
+      google.load('visualization', '1.0', {'packages':['corechart']});
+      google.setOnLoadCallback(drawChart);
+      function drawChart() {
+      var data = new google.visualization.DataTable();
+      data.addColumn('string', 'Topping');
+      data.addColumn('number', 'Slices');
+      data.addRows([
+      ['{% trans "Questionari Compilati" %} ({{comp}})', {{comp}}],
+      ['{% trans "Utenti Invitati" %} ({{not_comp}})', {{not_comp}}],
+      ['{% trans "Utenti non Invitati" %} ({{not_invited}})', {{not_invited}}],
+      ]);
+      var options = {'title': '{% trans "Statistiche Utenti e Questionari" %}',
+      'width':380,
+      'height':300};
+      var chart = new google.visualization.PieChart(document.getElementById('chart_div_cake'));
+      chart.draw(data, options);
+      }
+    </script>
+    {% for a,b in lista %}
+    <script type="text/javascript">
+      $(document).ready(function() {
+      $('#total').append('<div id="linechart_div{{a}}" class="allinea"></div>');
+      });
+    </script>
+    <script type="text/javascript">
+      google.load("visualization", "1", {packages:["corechart"]});
+      google.setOnLoadCallback(drawChart);
+      function drawChart() {
+      var data = new google.visualization.DataTable();
+      data.addColumn('string', '{% trans 'Question' %}');
+      data.addColumn('number', '{% trans 'Num. Risposte' %}');
+      data.addRows([
+      {% for c,d in b.items %}
+      ['{{c|safe}}', {{d|safe}}],
+      {% endfor %}
+      ]);
+
+      var options = {
+      width: 380, height: 400,
+      title: '{{a}}'
+      };
+      var chart = new google.visualization.BarChart(document.getElementById('linechart_div{{a}}'));
+      chart.draw(data, options);
+      }
+    </script>
+    {% endfor %}
+  </head>
+  <body>
+    <div id="chart_div_cake" style="width:380px; border:1px solid grey; margin:2%;"></div>
+    <div id="total" style="width:1200px; margin:2%;"></div>
+    <div style="clear:both;"/>
+    <br/>
+    <div id="total_percent" style="width:1200px; margin:2%;">
+      {% for a,b in lista_percent %}
+      <div id="percent{{a}}" style="width:380px; min-height:300px; padding:10px;" class="allinea">
+        <p align="justify"><b>{{a|safe}}</b></p>
+        <table>
+	  {% for c,d in b.items %}
+	  <tr><td align="left">{{c|safe}}</td><td>{{d|safe}}%</td></tr>
+	  {% endfor %}
+        </table>
+      </div>
+      {% endfor %}
+    </div>
+    <br/>
+  </body>
+</html>
