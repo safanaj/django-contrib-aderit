@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+{% load markup questionnaire i18n questionnaire_ext %}
+
+{% block extra-head %}
+<script type="text/javascript" src="{{ STATIC_URL }}js/questionset.js"></script>
+<link rel="stylesheet" href="{{ STATIC_URL }}js/progressbar.css"></link>
+
+{% for x in jsinclude %}
+<script type="text/javascript" src="{{ x }}"></script>
+{% endfor %}
+
+{% for x in cssinclude %}
+<link rel="stylesheet" href="{{ x }}" type="text/css" />
+{% endfor %}
+
+{% if async_progress %}
+<script type="text/javascript">
+  var progress_url = "{{ async_url }}";
+</script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/progress.js"></script>
+{% endif %}
+
+{% endblock %}
+
+{% block language %}
+{% for lang in LANGUAGES %}{% if not forloop.first %} |{% endif %}
+<a href="{{request.path}}?lang={{ lang.0 }}">{{ lang.1 }}</a>
+{% endfor %}
+{% endblock %}
+
+{% block content %}
+<br/>
+<div class="row">
+  <div class="span10 offset1">
+    {% get_prev_questionset runinfo as qs_prev %}
+
+    {% if progress %}
+    {% if qs_prev %}
+    {# {% get_runinfo_answers as ri_answers %} #}
+    <p align="center">{% trans "Pagina" %} {{questionset.sortid}} {% trans "di" %} {{questionset.questionnaire.questionsets|length}}</p>
+    {#<p align="center">{% trans "Risposte effettuate" %} {{ri_answers.0}} {% trans "su" %} {{ri_answers.1}} {% trans "totali" %}</p>#}
+    <br/>
+    {% endif %}
+    {% endif %}
+
+    <div class="questionset-title">
+      {{ questionset.text|safe}}
+    </div>
+    <br/>
+    <form name="qform" id="qform" action="{{ request.path }}" method="POST">
+
+      {% csrf_token %}
+
+      <input type="hidden" name="questionset_id" value="{{ questionset.id }}">
+
+      {% for question, qdict in qlist %}
+      {% with errors|dictget:question.number as error %}
+
+      <div class="question type_{{ qdict.qtype }} {% if error %} error prepend-top{% endif %}{{ qdict.qnum_class }}{{ qdict.qalpha_class }}" id="qc_{{ question.number }}" {{qdict.checkstring|safe}}>
+        {% if request.user.is_staff %}
+        <span class="pull-right"><br/><br/>
+          <a href="/admin/questionnaire/question/{{ question.id }}/">
+            ({% trans "edit" %} {{ question.number }})
+          </a>
+        </span>
+        {% endif %}
+
+        {% if qdict.custom %}
+        {% if error %}
+        <div class="error">
+          {{ error }}
+        </div>
+        {% endif %}
+        {% include qdict.template %}
+        {% else %}
+        <div class="question-text {% if qdict.required %}required{% endif %}">
+          <span class="qnumber">{{ question.display_number|safe }}.</span>
+          {{ question.text|safe }}
+        </div>
+        <div class="answer">
+          {% if error %}
+          <div class="alert-message block-message error input"><strong>{{ error }}</strong></div>
+          {% endif %}
+          {% include qdict.template %}
+        </div>
+        {% endif %}
+      </div> <!-- /question container -->
+      {% if question.footer %}
+      <div class="question-footer">
+        {{ question.footer|textile }}
+        <div class="clearfix"></div>
+      </div>
+      {% endif %}
+      {% endwith %}
+      {% endfor %}
+
+
+      {% if not questionset.next %}
+      <div style="text-align: center;">
+        <a class="btn" target="blank" href="{% url show_report runinfo.id %}">{% trans "Mostra risposte sezioni precedenti" %}</a><br/>
+      </div>
+      {% endif %}
+
+      <br/>
+      {% if qs_prev %}
+      <br/>
+      <div class="row">
+	<div class="span5">
+	  <a class="btn" href="/?quest=Save">{% trans "Salva ed Esci" %}</a>
+          {% if questionset.next %}
+          <a class="back-link btn" target="blank" href="{% url show_report runinfo.id %}" target="blank">{% trans "Mostra Report" %}</a> 
+	  {% endif %}
+	</div>
+	<div class="span5">
+	  <a class="btn" href="{% url questionset runinfo.runid qs_prev.sortid %}">{% trans "Pagina Precedente" %}</a>
+	  <input class="btn btn-primary" name="submit" type="submit" value="{% if not questionset.next %}{% trans "Invia Indagine" %}{% else %}{% trans "Salva e Prosegui" %}{% endif %}">
+	</div>
+      </div>
+      {% else %}
+      <input class="btn btn-primary" name="submit" type="submit" value="{% if not questionset.next %}{% trans "Invia Indagine" %}{% else %}{% trans "Salva e Prosegui" %}{% endif %}">
+      {% endif %}
+    </form>
+
+    <script type="text/javascript">
+      {% for trigger in triggers %}
+      addtrigger("{{trigger}}");
+      {% endfor %}
+
+      {% for k,v in qvalues.items %}
+      qvalues['{{ k|escapejs }}'] = '{{ v|escapejs }}';
+      {% endfor %}
+
+      for(key in qvalues) {
+      valchanged(key, qvalues[key]);
+      }
+    </script>
+    <br/>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,24 @@
+{% load i18n questionnaire_ext %}
+{% get_answers as total %}
+
+<div class="clearfix">
+    <div class="input">
+      <select class="select-list"
+	      id="question_{{ question.number }}"
+	      name="question_{{ question.number }}">
+        {% for sel, choice in qdict.choices %}
+        <option id="{{ question.number }}_{{ forloop.counter }}"
+		onClick="valchanged('{{ question.number }}', '{{ choice.value }}')"
+		value="{{ choice.value }}"
+		{% if choice.value in total %} selected="selected" {% endif %}
+		{# {% if sel %} selected="selected" {% endif %} #}>
+	  {{ choice.text }}
+	</option>
+        {% endfor %}
+      </select>
+      {% if question.extra %}
+      <p><span class="help-block">{{ question.extra }}</span></p>
+      {% endif %}
+
+    </div>
+</div>

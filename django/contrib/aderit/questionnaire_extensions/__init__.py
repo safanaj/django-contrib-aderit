@@ -25,11 +25,8 @@ Seantis Questionnaire extensions by Aderit.
 __copyright__ = '''Copyright (C) 2012 Aderit srl'''
 
 from django.conf import settings
+from django.core.exceptions import ImproperlyConfigured
 
-if 'questionnaire' in settings.INSTALLED_APPS:
-    #from questionnaire.models import Subject as SQSubject
-    #from questionnaire.models import QuestionSet as SQQuestionSet
-    from questionnaire.models import (Questionnaire, Question, Answer,
-                                      RunInfo, RunInfoHistory, Choice)
-    from django.contrib.aderit.questionnaire_extensions.models import Subject
-    from django.contrib.aderit.questionnaire_extensions.models import QuestionSet
+if 'questionnaire' not in settings.INSTALLED_APPS:
+    raise ImproperlyConfigured('Questionnaire_Extensions by Aderit '
+                               'depends strictly on seantis questionnaire')

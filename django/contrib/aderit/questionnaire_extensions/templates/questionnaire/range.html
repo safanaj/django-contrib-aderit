@@ -1,0 +1,17 @@
+{% load i18n questionnaire_ext %}
+{% get_answers as total %}
+
+<div class="clearfix rangeinput">
+  <div class="input">
+    &nbsp;&nbsp;&nbsp;<input name="question_{{ question.number }}"
+			     type="range"
+			     min="{{ qdict.rmin }}"
+			     max="{{ qdict.rmax }}"
+			     step="{{ qdict.rstep }}"
+			     value="{{ total.0 }}" />
+  </div>
+  &nbsp;&nbsp;&nbsp;<label data-unit="{{ qdict.runit }}">{{ qdict.runit }}</label>
+  {% if question.extra %}
+  &nbsp;&nbsp;&nbsp;<span class="help-block">{{ question.extra }}</span>
+  {% endif %}
+</div>

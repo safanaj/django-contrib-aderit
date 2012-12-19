@@ -1,0 +1,22 @@
+{% load i18n questionnaire_ext %}
+{% get_answers as total %}
+
+<div class="clearfix">
+  <div class="input">
+    <input type="text"
+	   class="span2"
+	   name="question_{{ question.number }}"
+	   size="10"
+	   value="{{ qdict.value }}" />
+    <select class="span2" name="question_{{ question.number }}_unit">
+      {% for val, desc, sel in qdict.timeperiods %}
+      <option value="{{ val }}"
+	      {% if val in total %} selected="selected" {% endif %}
+	      {# {% if sel %} selected="selected" {% endif %} #}>{{ desc }}</option>
+      {% endfor %}
+    </select>
+    {% if question.extra %}
+    <span class="help-block">{{ question.extra }}</span>
+    {% endif %}
+  </div>
+</div>

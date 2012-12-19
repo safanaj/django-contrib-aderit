@@ -1,0 +1,16 @@
+{% load i18n questionnaire_ext %}
+{% get_answers as total %}
+
+<div class="clearfix">
+  <div class="input">
+    &nbsp;&nbsp;&nbsp;<input type="text"
+			     class="span8"
+			     size="60"
+			     id="{{ question.number }}"
+			     name="question_{{ question.number }}"
+			     value="{{total.0}}" />
+    {% if question.extra %}
+    &nbsp;&nbsp;&nbsp;<span class="help-block">{{ question.extra }}</span>
+    {% endif %}
+  </div>
+</div>
