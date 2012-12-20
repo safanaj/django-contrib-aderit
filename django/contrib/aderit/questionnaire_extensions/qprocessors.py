@@ -2,8 +2,10 @@
 #
 # Copyright (C) 2012 Aderit srl
 #
-# Author: Marco Bardelli <marco.bardelli@aderit.it>,
-#                        <bardelli.marco@gmail.com>
+# Authors: Marco Bardelli <marco.bardelli@aderit.it>,
+#                        <bardelli.marco@gmail.com>,
+#          Matteo Atti <matteo.atti@aderit.it>,
+#                      <attuch@gmail.com>
 #
 # This file is part of DjangoContribAderit.
 #
@@ -69,3 +71,24 @@ def process_choice(question, answer):
         raise AnswerException(_(u'Invalid option!'))
     return dumps([opt])
 add_type('choice-select', 'Choice [select]')
+
+
+@question_proc('date-select')
+def question_date(request, question):
+    key = "question_%s" % question.number
+    value = question.getcheckdict().get('default','')
+    if key in request.POST:
+        value = request.POST[key]
+    return {
+        'required' : question.getcheckdict().get('required', False),
+        'value' : value,
+    }
+
+@answer_proc('date-select')
+def process_date(question, answer):
+    checkdict = question.getcheckdict()
+    ans = answer['ANSWER'] or ''
+    if ans:
+        return dumps([ans])
+    return dumps([])
+add_type('date-select', 'Date [select]')

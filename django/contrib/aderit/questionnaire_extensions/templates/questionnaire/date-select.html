@@ -1,0 +1,33 @@
+{% load i18n questionnaire_ext %}
+{% get_answers as total %}
+
+<!-- Need this in head -->
+<!-- <script type="text/javascript" -->
+<!--         src="{{ STATIC_URL }}js/bootstrap-datepicker.js"></script> -->
+<!-- <link rel="stylesheet" -->
+<!--       src="{{ STATIC_URL }}css/datepicker.css" /> -->
+
+<script type="text/javascript">
+  $(document).ready(function() {
+  $('#{{ question.number }}').datepicker();
+  });
+</script>
+
+
+<div class="clearfix">
+  <div class="input-append date"
+       id="qc_{{ question.number }}"
+       data-date=""
+       data-date-format="dd-mm-yyyy">
+    <input class="span2 datepicker"
+           size="60"
+           type="text"
+           id="{{ question.number }}"
+           name="question_{{ question.number }}"
+           value="{{ total.0 }}">
+    {% if question.extra %}
+    &nbsp;&nbsp;&nbsp;<span class="help-block">{{ question.extra }}</span>
+    {% endif %}
+
+  </div>
+</div>
