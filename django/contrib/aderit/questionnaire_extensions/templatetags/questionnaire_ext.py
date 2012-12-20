@@ -54,16 +54,16 @@ def get_prev_questionset(runinfo):
 
 @register.assignment_tag(takes_context=True)
 def get_answers(context):
-     question = context['question']
-     runinfo = context['runinfo']
-     try:
-         answers = question.answer_set.filter(runid=runinfo.runid, subject=runinfo.subject)
-         assert(answers.count() == 1)
-         for i in answers:
-             return eval(i.answer)
-     except Exception, e:
-         logger.error("get_answers: %s", e)
-     return []
+    question = context['question']
+    runinfo = context['runinfo']
+    try:
+        answers = question.answer_set.filter(runid=runinfo.runid, subject=runinfo.subject)
+        assert(answers.count() == 1)
+        for i in answers:
+            return eval(i.answer)
+    except Exception, e:
+        logger.error("get_answers: %s", e)
+    return []
 
 @register.assignment_tag
 def users_for_questionnaire(questionnaire):
