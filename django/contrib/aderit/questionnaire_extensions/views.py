@@ -250,31 +250,53 @@ class ShowGraph(TemplateView, GenericProtectedView):
         _subjects = self.account_model.objects.filter(questionnaires__id=qid)
         subjects = [i.subject for i in _subjects if i.subject is not None and i.subject.state == "active"]
         quest_comp = RunInfoHistory.objects.filter(questionnaire__id=qid)
-        comp = len(quest_comp)
+        comp = quest_comp.count()
         quest_started = RunInfo.objects.filter(questionset__questionnaire__id=qid)
-        not_comp = len(quest_started)
+        not_comp = quest_started.count()
         not_invited = len(subjects) - comp - not_comp
-        logger.debug("COMPILATI %s -- NON COMPILATI %s -- META' %s", comp, not_comp, not_invited)
-        questions = Question.objects.filter(questionset__questionnaire=qid).order_by('id')
+        if not_invited < 0: not_invited = 0
+        # logger.debug("COMPILATI %s -- NON COMPILATI %s -- META' %s", comp, not_comp, not_invited)
+        questions = Question.objects.filter(questionset__questionnaire=qid)
+        questions = sorted(questions, key=lambda o: int(re.sub("[^0-9]",
+                                                               "",
+                                                               str(o.number))))
+
         lista = []
         lista_percent = []
         for i in questions:
             newdiz = {}
             newdiz_percent = {}
-            lista.append((str(i.number) + " - " + i.text.replace("'","`"), newdiz))
-            lista_percent.append((str(i.number) + " - " + i.text.replace("'","`"), newdiz_percent))
+            # lista.append((str(i.number) + " - " + i.text.replace("'","`"), newdiz))
+            # lista_percent.append((str(i.number) + " - " + i.text.replace("'","`"), newdiz_percent))
             tot = 0
             totnumber = 1
-            for y in i.choices():
-                totnumber = len(Answer.objects.filter(question=i))
+            choices = [x for x in i.choices()]
+            choices = sorted(choices, key=lambda o: int(re.sub("[^0-9]",
+                                                               "",
+                                                               str(o.sortid))))
+            for y in choices:
+                totnumber = Answer.objects.filter(question=i).count()
                 if totnumber == 0: totnumber = 1
-                numbers = len(Answer.objects.filter(question=i, answer__icontains=y.value))
+                numbers = Answer.objects.filter(question=i,
+                                                answer__icontains=y.value).count()
                 tot += numbers
                 newdiz[y.text.replace("'","")] = numbers
-                newdiz_percent[y.text.replace("'","")] = round(float(numbers)/float(totnumber)*100,2)
-            if len(Answer.objects.filter(question=i)) > tot:
-                if totnumber == 0: totnumber = 1
-                newdiz["Risposta aperta"] = len(Answer.objects.filter(question=i)) - tot
-                lentot = len(Answer.objects.filter(question=i)) - tot
-                newdiz_percent["Risposta aperta"] = round(float(lentot)/float(totnumber)*100, 2)
+                newdiz_percent[y.text.replace("'","`")] = round(float(numbers)/float(totnumber)*100, 2)
+
+            # If Open Answer because tot = 0
+            if Answer.objects.filter(question=i).count() > tot:
+                correct_answ_count = Answer.objects.filter(question=i).exclude(answer="[]").count()
+                newdiz["Risposta aperta"] = correct_answ_count
+                lentot = Answer.objects.filter(question=i).count()
+                newdiz_percent["Risposta aperta"] = round(float(correct_answ_count)/float(lentot)*100, 2)
+            try:
+                newdiz = sorted([(int(key),value) for (key,value) in newdiz.items()])
+            except:
+                pass
+            try:
+                newdiz_percent = sorted([(int(key),value) for (key,value) in newdiz_percent.items()])
+            except:
+                pass
+            lista.append((str(i.number) + " - " + i.text.replace("'","`"), newdiz))
+            lista_percent.append((str(i.number) + " - " + i.text.replace("'","`"), newdiz_percent))
         return TemplateResponse(self.request, self.template_name, locals())

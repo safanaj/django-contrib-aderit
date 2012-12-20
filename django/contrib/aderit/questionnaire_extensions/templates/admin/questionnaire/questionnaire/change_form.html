@@ -23,7 +23,7 @@
         data.addColumn('number', 'Slices');
         data.addRows([
           ['{% trans "Questionari Compilati" %} ({{comp|length}})', {{comp|length}}],
-          ['{% trans "Utenti Invitati" %} ({{not_comp|length}})', {{not_comp|length}}],
+          ['{% trans "Questionari non Compilati" %} ({{not_comp|length}})', {{not_comp|length}}],
           {# ['{% trans "Destinatari Totali" %} ({{subjects|length}})', {{subjects|length}}], #}
         ]);
         var options = {'title':'{% trans "Rapporto Compilazione Questionario" %}',
