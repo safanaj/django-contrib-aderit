@@ -41,7 +41,7 @@ from django.contrib.aderit.send_mail import SendTypeMail, SendTypeMailError
 from django.contrib.aderit.generic_utils.views import \
     (GenericUtilView, GenericProtectedView)
 from django.contrib.aderit.questionnaire_extensions.models import \
-    (RunInfo, Answer, RunInfoHistory, QuestionSet, Question)
+    (RunInfo, Answer, RunInfoHistory, QuestionSet, Question, Choice)
 import re, random
 
 logger = getLogger('aderit.questionnaire_extensions.views')
@@ -69,31 +69,45 @@ class ShowReport(TemplateView, GenericUtilView):
                                            questionset__questionnaire__id=qid)
         out = []
         for ans in answers:
-            try:
-                choice = Choice.objects.get(question=ans.question,
-                                            value=ans.answer)
-                choiceval = eval(unicode(choice.text))[0]
-            except Exception, e:
-                choiceval = ""
-                choicevallist = ans.answer
-                try:
-                    if len(eval(choicevallist)) > 1:
-                        for i in eval(choicevallist):
-                            if type(i) == list:
-                                choiceval += i[0] + ";"
-                            else:
-                                choiceval += i + ";"
-                    else:
-                        try:
-                            choicevalue = eval(choicevallist)[0]
-                            if type(choicevalue) == list:
-                                choiceval = choicevalue[0]
-                            else:
-                                choiceval = choicevalue
-                        except:
-                            choiceval = ""
-                except:
-                    choiceval = ""
+            logger.debug(u"Q: %s - A: %s", ans.question, ans.answer)
+            q_type = ans.question.type
+            # if q_type not in ('choice', 'choice-freeform',
+            #                    'choice-multiple', 'choice-multiple-freeform'):
+            if ans.answer:
+                anslist = eval(ans.answer)
+            else:
+                anslist = []
+            if 'choice' not in q_type:
+                # No choices to manage
+                if len(anslist) > 0:
+                    choiceval = anslist[0]
+                else:
+                    choiceval = ''
+            else:
+                if len(anslist) == 0:
+                    choiceval = ''
+                elif len(anslist) == 1:
+                    # radio, single
+                    for anselt in anslist:
+                        if isinstance(anselt, list):
+                            # selected altro
+                            choiceval = anselt[0]
+                        else:
+                            choice = Choice.objects.get(question=ans.question,
+                                                        value=anselt)
+                            choiceval = choice.text
+                else:  #mutiple, have to append text in string
+                    choiceval = ''
+                    #logger.debug("cycle over anslist: %s", anslist)
+                    for anselt in anslist:
+                        if isinstance(anselt, list):
+                            # selected altro
+                            choiceval += anselt[0] + '; '
+                        else:
+                            choice = Choice.objects.get(question=ans.question,
+                                                        value=anselt)
+                            choiceval += choice.text + '; '
+            logger.debug(u"Q: %s - A: %s -- val: %s", ans.question, ans.answer, choiceval)
             new_url = reverse('questionset', args=[this_runinfo.runid,
                                                    ans.question.questionset.sortid])
             logger.debug(new_url)
@@ -101,7 +115,7 @@ class ShowReport(TemplateView, GenericUtilView):
                         'q_url' : new_url,
                         'q_head' : ans.question.questionset.heading,
                         'q_text' : ans.question.text,
-                        'q_answ' : str(choiceval),
+                        'q_answ' : unicode(choiceval),
                         })
         kwargs.update({
                 'out' : out,
