@@ -9,6 +9,7 @@
 <script type="text/javascript" src="{{ jsi18nurl|default:"../../../jsi18n/" }}"></script>
 {{ media }}
 
+{% if not add %}
 {% get_user_compiled 'comp' 'not_comp' %}
 {% users_for_questionnaire object_id as subjects %}
 
@@ -33,6 +34,7 @@
         chart.draw(data, options);
       }
 </script>
+{% endif %}
 
 {% endblock %}
 
@@ -73,10 +75,13 @@
     {{ adminform.form.non_field_errors }}
 {% endif %}
 
+{% if not add %}
 <br/>
 <a href="{% url 'sendinvitation' slug=object_id %}">{% trans "Invia inviti per Questionario" %}</a><br/>
 <a href="{% url 'exportcsv' slug=object_id %}">{% trans "Esporta tutte le risposte in CSV" %}</a><br/>
 <a href="{% url 'showgraph' slug=object_id %}" target="blank">{% trans "Visualizza statistiche risposte Questionario" %}</a><br/>
+{% endif %}
+
 {% for fieldset in adminform %}
   {% include "admin/includes/fieldset.html" %}
 {% endfor %}
@@ -95,6 +100,7 @@
    <script type="text/javascript">document.getElementById("{{ adminform.first_field.auto_id }}").focus();</script>
 {% endif %}
 
+{% if not add %}
    {% load questionnaire_ext %}
    {% get_user_compiled 'comp' 'not_comp' %}
    {% users_for_questionnaire object_id as subjects %}
@@ -147,6 +153,7 @@
        </tr>
      </tbody>
    </table>
+{% endif %}
    </div>
 
 {# JavaScript for prepopulated fields #}
