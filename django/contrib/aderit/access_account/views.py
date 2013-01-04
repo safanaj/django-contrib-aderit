@@ -469,6 +469,11 @@ class SignupView(_CreateView, GenericProtectedUncacheableView, CaptchableView):
         else:
             rows = self.model.objects\
                 .filter(pk=self.object.pk).update(**account_kwargs)
+            # Using update() we write directly on db and instance associated
+            # to new_user via get_profile() is unchanged, to force get_profile
+            # to refresh it from db delete _profile_cache attr
+            if hasattr(new_user, '_profile_cache'):
+                delattr(new_user, '_profile_cache')
             assert(rows == 1 or rows == len(account_kwargs) == 0)
 
         have_to_save = False

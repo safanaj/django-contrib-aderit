@@ -1,3 +1,11 @@
+django-contrib-aderit (1.4.6.1) stable; urgency=low
+
+  * NMU: release 1.4.6.1
+  * fix access_account.views.SignupView to prevent
+    to use cached profile
+
+ -- Marco Bardelli <marco.bardelli@aderit.it>  Fri, 04 Jan 2013 16:13:41 +0100
+
 django-contrib-aderit (1.4.6) stable; urgency=low
 
   * New app questionnaire_extensions for integration with seantis questionnaire
@@ -15,7 +23,7 @@ django-contrib-aderit (1.4.6~pre) veryunstable; urgency=low
   * git rev: 716aa89afdfecf0d6690ba13fb1757ed8ee2be9d
   * temporary added debian/changelog.git to git branch copyright-added
     to reintroduce debian/changelog in git, maybe using autoconf
-  
+
  -- Marco Bardelli <marco.bardelli@aderit.it>  Mon, 03 Dec 2012 01:58:53 +0100
 
 django-contrib-aderit (1.4.5) unstable; urgency=low
