@@ -1,3 +1,10 @@
+django-contrib-aderit (1.4.6.2) stable; urgency=low
+
+  * NMU: release 1.4.6.2
+  * minor fix for choices yes-no-dontknow in show-report
+
+ -- Matteo Atti <attuch@gmail.com>  Mon, 07 Jan 2013 16:13:41 +0100
+
 django-contrib-aderit (1.4.6.1) stable; urgency=low
 
   * NMU: release 1.4.6.1

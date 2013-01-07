@@ -53,7 +53,7 @@ REMINDER_SEND_TYPE_MAIL = getattr(settings, 'QEXT_REMINDER_SEND_MAIL_TYPENAME',
                                   'quest_remind')
 
 class ShowReport(TemplateView, GenericUtilView):
-    use_login_required_decorator = True
+    use_login_required_decorator = False
     slug_field = 'id'
 
     def get_context_data(self, **kwargs):
@@ -87,10 +87,11 @@ class ShowReport(TemplateView, GenericUtilView):
                 if len(anslist) == 0:
                     choiceval = ''
                 elif len(anslist) == 1:
-                    # radio, single
+                    # radio, single, yes-no
                     for anselt in anslist:
-                        if isinstance(anselt, list):
-                            # selected altro
+                        if q_type in ['choice-yesno','choice-yesnocomment','choice-yesnodontknow']:
+                            choiceval = anselt
+                        elif isinstance(anselt, list):
                             choiceval = anselt[0]
                         else:
                             choice = Choice.objects.get(question=ans.question,
@@ -165,6 +166,8 @@ class ExportCsv(GenericProtectedView):
                             choiceval = ""
                 except:
                     choiceval = ""
+                if not isinstance(choiceval, basestring):
+                    choiceval = unicode(choiceval)
                 writer.writerow({
                         u'domanda' : ans.question.number.encode("utf-8") + ") " + ans.question.questionset.heading.encode("utf-8") + ": " + ans.question.text.encode("utf-8"),
                         u'valore' : choiceval.encode("utf-8")})
