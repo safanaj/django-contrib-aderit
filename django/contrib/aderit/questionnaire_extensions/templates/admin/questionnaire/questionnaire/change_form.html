@@ -128,6 +128,21 @@
 		 target="blank"
 		 title="{% trans 'Show UserProfile in Admin' %}">
 	       {{ i.subject.givenname }} -- {{ i.subject.email }}
+
+	       {% if i.subject.runinfo_set.all|length == 0 %}
+	       &nbsp;<a style="border:1px solid grey;" href="{% url 'sendinvitation' slug=object_id subjid=i.subject.id %}"
+									  title="{% trans 'Invita' %}">&nbsp;&#8594;&nbsp;</a>
+	       {% else %}
+
+	       {% for ri in i.subject.runinfo_set.all %}
+	       {% if ri not in comp and ri in not_comp %}
+	       &nbsp;<a style="border:1px solid grey;"
+			      href="{% url 'sendinvitation' slug=object_id subjid=i.subject.id %}"
+			      title="{% trans 'Sollecita' %}">&nbsp;&#8631;&nbsp;</a>
+	       {% endif %}
+	       {% endfor %}
+
+	       {% endif %}
 	     </a>
 	   </p>
 	   {% endfor %}

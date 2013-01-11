@@ -41,7 +41,7 @@ from django.contrib.aderit.send_mail import SendTypeMail, SendTypeMailError
 from django.contrib.aderit.generic_utils.views import \
     (GenericUtilView, GenericProtectedView)
 from django.contrib.aderit.questionnaire_extensions.models import \
-    (RunInfo, Answer, RunInfoHistory, QuestionSet, Question, Choice)
+    (RunInfo, Answer, RunInfoHistory, QuestionSet, Question, Choice, Subject)
 import re, random
 
 logger = getLogger('aderit.questionnaire_extensions.views')
@@ -201,19 +201,19 @@ class SendInvitation(GenericProtectedView):
         return super(SendInvitation, self).dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
-        qid = int(kwargs['slug'])
-        _subjects = self.account_model.objects.filter(questionnaires__id=qid)
-        subjects = [i.subject for i in _subjects if i.subject is not None and i.subject.state == "active"]
-        # non_auth_subjects = [s for s in Subjects.objects.exclude(id__in=[i.id for i in subjects]) if s.email]
-        # logger.debug(subjects)
-        # logger.debug(non_auth_subjects)
+        qid = int(kwargs.get('slug', 0))
+        subjid = kwargs.get('subjid', None)
+        if not subjid:
+            _subjects = self.account_model.objects.filter(questionnaires__id=qid)
+            subjects = [i.subject for i in _subjects if i.subject is not None and i.subject.state == "active"]
+        else:
+            subjects = Subject.objects.filter(id=int(subjid),
+                                              state="active")
         for i in subjects:
             runinfo = RunInfo.objects.filter(subject=i,
-                                             questionset__questionnaire__id=qid
-                                             )
+                                             questionset__questionnaire__id=qid)
             runinfohistory = RunInfoHistory.objects.filter(subject=i,
-                                                           questionnaire__id=qid
-                                                           )
+                                                           questionnaire__id=qid)
             if runinfo.count() == 0 and runinfohistory.count() == 0:
                 logger.debug("il soggetto %s deve ancora compilare il questionario %s: creare il runinfo associato", i.givenname, qid)
                 randomstr = str(''.join(random.sample('abcdefghilmnopqrstuvz0123456789', 10)))
