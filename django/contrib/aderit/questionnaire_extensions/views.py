@@ -34,6 +34,7 @@ from django.template.response import TemplateResponse
 from django.utils.log import getLogger
 from django.utils.translation import ugettext_lazy as _
 from django.utils.decorators import method_decorator
+from django.utils.html import conditional_escape
 from django.contrib.sites.models import Site
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.aderit.access_account import _get_model_from_auth_profile_module
@@ -272,48 +273,94 @@ class ShowGraph(TemplateView, GenericProtectedView):
         not_comp = quest_started.count()
         not_invited = len(subjects) - comp - not_comp
         if not_invited < 0: not_invited = 0
-        # logger.debug("COMPILATI %s -- NON COMPILATI %s -- META' %s", comp, not_comp, not_invited)
         questions = Question.objects.filter(questionset__questionnaire=qid)
         questions = sorted(questions, key=lambda o: int(re.sub("[^0-9]",
                                                                "",
                                                                str(o.number))))
-
         lista = []
         lista_percent = []
         for i in questions:
             newdiz = {}
             newdiz_percent = {}
-            # lista.append((str(i.number) + " - " + i.text.replace("'","`"), newdiz))
-            # lista_percent.append((str(i.number) + " - " + i.text.replace("'","`"), newdiz_percent))
-            tot = 0
-            totnumber = 1
-            choices = [x for x in i.choices()]
-            choices = sorted(choices, key=lambda o: int(re.sub("[^0-9]",
-                                                               "",
-                                                               str(o.sortid))))
-            for y in choices:
-                totnumber = Answer.objects.filter(question=i).count()
-                if totnumber == 0: totnumber = 1
-                numbers = Answer.objects.filter(question=i,
-                                                answer__icontains=y.value).count()
-                tot += numbers
-                newdiz[y.text.replace("'","")] = numbers
-                newdiz_percent[y.text.replace("'","`")] = round(float(numbers)/float(totnumber)*100, 2)
+            q_type = i.type
+            answers = Answer.objects.filter(question=i)
+            out = []
+            for ans in answers:
+                # logger.debug(u"Q: %s - A: %s", ans.question, ans.answer)
+                q_type = ans.question.type
+                if ans.answer:
+                    anslist = eval(ans.answer)
+                else:
+                    anslist = []
+                if 'choice' not in q_type:
+                    # No choices to manage
+                    if len(anslist) > 0:
+                        choiceval = anslist[0]
+                    else:
+                        choiceval = ''
 
-            # If Open Answer because tot = 0
-            if Answer.objects.filter(question=i).count() > tot:
-                correct_answ_count = Answer.objects.filter(question=i).exclude(answer="[]").count()
-                newdiz["Risposta aperta"] = correct_answ_count
-                lentot = Answer.objects.filter(question=i).count()
-                newdiz_percent["Risposta aperta"] = round(float(correct_answ_count)/float(lentot)*100, 2)
-            try:
-                newdiz = sorted([(int(key),value) for (key,value) in newdiz.items()])
-            except:
-                pass
-            try:
-                newdiz_percent = sorted([(int(key),value) for (key,value) in newdiz_percent.items()])
-            except:
-                pass
-            lista.append((str(i.number) + " - " + i.text.replace("'","`"), newdiz))
-            lista_percent.append((str(i.number) + " - " + i.text.replace("'","`"), newdiz_percent))
+                    if not newdiz.get('Open Answer'):
+                        newdiz['Open Answer'] = 1
+                    else:
+                        newdiz['Open Answer'] += 1
+                else:
+                    if len(anslist) == 0:
+                        choiceval = ''
+                    elif len(anslist) == 1:
+                        # radio, single, yes-no
+                        for anselt in anslist:
+                            if q_type in ['choice-yesno','choice-yesnocomment','choice-yesnodontknow']:
+                                choiceval = anselt
+
+                                if not newdiz.get(anselt, None):
+                                    newdiz[conditional_escape(anselt)] = 1
+                                else:
+                                    newdiz[conditional_escape(anselt)] += 1
+
+                            elif isinstance(anselt, list):
+                                choiceval = anselt[0]
+
+                                if not newdiz.get('Open Answer', None):
+                                    newdiz['Open Answer'] = 1
+                                else:
+                                    newdiz['Open Answer'] += 1
+                            else:
+                                choice = Choice.objects.get(question=ans.question,
+                                                            value=anselt)
+                                choiceval = choice.value
+
+                                if not newdiz.get(choice.value, None):
+                                    newdiz[conditional_escape(choice.value)] = 1
+                                else:
+                                    newdiz[conditional_escape(choice.value)] += 1
+
+                    else:  #mutiple, have to append text in string
+                        choiceval = ''
+                        for anselt in anslist:
+                            if isinstance(anselt, list):
+                                # selected altro
+                                choiceval = anselt[0]
+
+                                if not newdiz.get('Open Answer', None):
+                                    newdiz['Open Answer'] = 1
+                                else:
+                                    newdiz['Open Answer'] += 1
+
+                            else:
+                                choice = Choice.objects.get(question=ans.question,
+                                                            value=anselt)
+                                choiceval = choice.value
+
+                                if not newdiz.get(choiceval, None):
+                                    newdiz[conditional_escape(choiceval)] = 1
+                                else:
+                                    newdiz[conditional_escape(choiceval)] += 1
+
+            lista_title = conditional_escape(str(i.number) + ") " + i.text)
+            lista.append((lista_title, newdiz, i.number))
+            for y in newdiz.items():
+                if y[1]:
+                    newdiz_percent[y[0]] = round(float(y[1])/float(len(subjects))*100,
+                                                 2)
+            lista_percent.append((lista_title, newdiz_percent, i.number))
         return TemplateResponse(self.request, self.template_name, locals())

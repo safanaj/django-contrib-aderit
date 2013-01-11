@@ -6,7 +6,11 @@
     <script type="text/javascript" src="https://www.google.com/jsapi"></script>
     <link href="{{STATIC_URL}}css/bootstrap.min.css" rel="stylesheet" />
     <style type="text/css">
-      div.allinea { float:left; border-bottom:1px solid grey;}
+      div.allinea { float:left;
+                    border-top:1px solid grey;
+      }
+      div.allinea table { box-shadow: 3px 3px 1px #888888; }
+      div.title-percent { box-shadow: 3px 3px 1px #888888; }
     </style>
 
     <script type="text/javascript">
@@ -28,10 +32,10 @@
       chart.draw(data, options);
       }
     </script>
-    {% for a,b in lista %}
+    {% for a,b,num in lista %}
     <script type="text/javascript">
       $(document).ready(function() {
-      $('#total').append('<div id="linechart_div{{a|safe}}" class="allinea"></div>');
+      $('#total').append('<div id="linechart_div{{num}}" class="allinea"></div>');
       });
     </script>
     <script type="text/javascript">
@@ -42,20 +46,16 @@
       data.addColumn('string', '{% trans 'Question' %}');
       data.addColumn('number', '{% trans 'Num. Risposte' %}');
       data.addRows([
-      {% if b.items.0.0 != "Risposta aperta" %}
-      {% for c,d in b %}
-      ['{{c|safe}}', {{d|safe}}],
+      {% for c,d in b.items %}
+      ['{{c}}', {{d}}],
       {% endfor %}
-      {% else %}
-      ['{{b.items.0.0}}', {{b.items.0.1}}],
-      {% endif %}
       ]);
 
       var options = {
       width: 380, height: 400,
       title: '{{a}}'
       };
-      var chart = new google.visualization.BarChart(document.getElementById('linechart_div{{a|safe}}'));
+      var chart = new google.visualization.BarChart(document.getElementById('linechart_div{{num}}'));
       chart.draw(data, options);
       }
     </script>
@@ -81,18 +81,22 @@
         <br/>
         &nbsp;<button class="btn" id="percent">{% trans "Mostra/Nascondi Percentuali" %}</button>
         <div id="total_percent" style="width:1200px; margin:2%;">
-          {% for a,b in lista_percent %}
-          <div id="percent{{a}}" style="width:380px; min-height:300px; padding:10px;" class="allinea">
-            <p align="justify"><b>{{a|safe}}</b></p>
-            <table>
-              {% if b.items.0.0 != "Risposta aperta" %}
-	      {% for c,d in b %}
-	      <tr><td align="left">{{c|safe}}</td><td>{{d|safe}}%</td></tr>
+          {% for a,b,num in lista_percent %}
+          <div id="percent_{{num}}" style="width:380px; min-height:300px; padding:10px;" class="allinea">
+	    <div class="title-percent">
+	    <p align="justify"><b>{{a|safe}}</b></p>
+	    </div>
+            <table class="table table-bordered">
+	      <tbody>
+	      {% for c,d in b.items %}
+	      <tr><td>{{c|safe}}</td><td>{{d|safe}}%</td></tr>
+	      {% empty %}
+	      <tr><td>{% trans "No Matches" %}</td></tr>
 	      {% endfor %}
-              {% else %}
-	      <tr><td align="left">{{b.items.0.0}}</td><td>{{b.items.0.1}}%</td></tr>
-              {% endif %}
+	      </tbody>
             </table>
+	  <br/>
+	  <br/>
           </div>
           {% endfor %}
         </div>
