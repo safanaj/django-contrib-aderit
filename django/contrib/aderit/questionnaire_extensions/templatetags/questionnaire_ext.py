@@ -77,3 +77,19 @@ def get_user_compiled(context, comp_name, not_comp_name):
     context[comp_name] = RunInfoHistory.objects.filter(questionnaire__id=context['object_id'])
     context[not_comp_name] = RunInfo.objects.filter(questionset__questionnaire__id=context['object_id'])
     return ""
+
+@register.simple_tag(takes_context=True)
+def show_quest_status_for_subj(context, subjid, qid, kind):
+    # completed
+    rh = RunInfoHistory.objects.filter(subject__id=int(subjid),
+                                       questionnaire__id=int(qid))
+    if rh.count() > 0: context[kind] = 'completed'
+
+    # not completed
+    ri = RunInfo.objects.filter(subject__id=int(subjid),
+                                questionset__questionnaire__id=int(qid))
+    if ri.count() > 0: context[kind] = 'not-completed'
+
+    # to invite
+    if rh.count() == 0 and ri.count() == 0: context[kind] = 'to-invite'
+    return ""

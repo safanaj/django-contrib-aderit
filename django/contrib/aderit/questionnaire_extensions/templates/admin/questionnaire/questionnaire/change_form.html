@@ -126,37 +126,40 @@
 	   {% for i in subjects %}
 	   <p><a href="/admin/auth/user/{{i.id}}"
 		 target="blank"
-		 title="{% trans 'Show UserProfile in Admin' %}">
-	       {{ i.subject.givenname }} -- {{ i.subject.email }}
+		 title="{% trans 'Mostra profilo utente in Admin' %}">
+	       {{ i.subject.givenname }} -- {{ i.subject.email }}</a>
 
-	       {% if i.subject.runinfo_set.all|length == 0 %}
-	       &nbsp;<a style="border:1px solid grey;" href="{% url 'sendinvitation' slug=object_id subjid=i.subject.id %}"
-									  title="{% trans 'Invita' %}">&nbsp;&#8594;&nbsp;</a>
-	       {% else %}
+	     {% show_quest_status_for_subj i.subject.id object_id 'kind' %}
+	     {% if kind == "to-invite" %}
+	     &nbsp;<a style="border:1px solid grey; color:#800000;"
+		      href="{% url 'sendinvitation' slug=object_id subjid=i.subject.id %}"
+		      title="{% trans 'Invita' %}">&nbsp;&#8594;&nbsp;</a>
+	     {% endif %}
 
-	       {% for ri in i.subject.runinfo_set.all %}
-	       {% if ri not in comp and ri in not_comp %}
-	       &nbsp;<a style="border:1px solid grey;"
-			      href="{% url 'sendinvitation' slug=object_id subjid=i.subject.id %}"
-			      title="{% trans 'Sollecita' %}">&nbsp;&#8631;&nbsp;</a>
-	       {% endif %}
-	       {% endfor %}
+	     {% if kind == "not-completed" %}
+	     &nbsp;<a style="border:1px solid grey; color:#800000;"
+		      href="{% url 'sendinvitation' slug=object_id subjid=i.subject.id %}"
+		      title="{% trans 'Sollecita' %}">&nbsp;&#8631;&nbsp;</a>
+	     {% endif %}
 
-	       {% endif %}
-	     </a>
+	     {% if kind == "completed" %}
+	     <a style="border:1px solid grey; color:green;"
+		href="{% url 'exportsubjcsv' slug=object_id subjid=i.subject.id %}"
+		title="{% trans 'Completato, mostra le sue risposte' %}">&nbsp;&#8730;&nbsp;</a>
+	     {% endif %}
 	   </p>
 	   {% endfor %}
 	 </td>
 	 <td>
 	   {% for i in not_comp %}
-	   <p>{{ i.subject.givenname }} -- {{ i.subject.email }}</p>
+	   <p>{{ i.subject.givenname }} -- {{ i.subject.email }}&nbsp;(Page: {{ i.questionset.sortid }})</p>
 	   {% endfor %}
 	 </td>
 	 <td>
 	   {% for i in comp %}
 	   <p>
 	     <a href="{% url 'exportsubjcsv' slug=object_id subjid=i.subject.id %}"
-		title="{% trans 'Export User Answers' %}">
+		title="{% trans 'Mostra le sue risposte' %}">
 	       {{ i.subject.givenname }} -- {{ i.subject.email }}
 	     </a>
 	   </p>
