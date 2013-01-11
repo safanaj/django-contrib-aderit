@@ -8,7 +8,7 @@
 			     min="{{ qdict.rmin }}"
 			     max="{{ qdict.rmax }}"
 			     step="{{ qdict.rstep }}"
-			     value="{{ total.0 }}" />
+			     value="{% if total %}{{ total.0 }}{% else %}{{ qdict.rmin }}{% endif %}" />
   </div>
   &nbsp;&nbsp;&nbsp;<label data-unit="{{ qdict.runit }}">{{ qdict.runit }}</label>
   {% if question.extra %}

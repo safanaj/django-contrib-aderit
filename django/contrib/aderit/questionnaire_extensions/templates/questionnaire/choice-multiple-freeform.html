@@ -12,7 +12,7 @@
 		 type="checkbox" id="{{ key }}"
 		 name="{{ key }}"
 		 value="{{ choice.value }}"
-		 {% if choice.text in total %} checked {% endif %} />
+		 {% if choice.value in total %} checked {% endif %} />
           <span>{{ choice.text }}</span>
         </label>
       </li>
@@ -24,21 +24,22 @@
         {% if not forloop.last or not forloop.first %}
         <b>{{ forloop.counter }}.</b>
         {% endif %}
-        <input type="checkbox">&nbsp;<label>Altro <input type="text"
-							 name="{{ key }}"
-							 size="50"
-							 value="{{value}}"
-							 placeholder="{% trans 'comment' %}" />  </label></input>
-      </li>
-      {% endfor %}
-      {% endif %}
-      
-      
-      {% if question.extra %}
-      <li>
-	<span class="help-block">{{ question.extra }}</span>
-      </li>
-      {% endif %}
-    </ul>
-  </div>
+        <input type="checkbox"><input type="text"
+				      name="{{ key }}"
+				      size="50"
+				      value="{{ value }}"
+				      placeholder="{% trans 'Altro da specificare' %}" />
+</input>
+</li>
+{% endfor %}
+{% endif %}
+
+
+{% if question.extra %}
+<li>
+  <span class="help-block">{{ question.extra }}</span>
+</li>
+{% endif %}
+</ul>
+</div>
 </div>
