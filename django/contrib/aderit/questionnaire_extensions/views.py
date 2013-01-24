@@ -4,7 +4,8 @@
 #
 # Copyright (C) 2012 Aderit srl
 #
-# Author: Matteo Atti <matteo.atti@aderit.it>, <attuch@gmail.com>
+# Author: Matteo Atti <matteo.atti@aderit.it>,
+#                     <attuch@gmail.com>
 #
 # This file is part of DjangoContribAderit.
 #
@@ -28,13 +29,17 @@ __copyright__ = '''Copyright (C) 2012 Aderit srl'''
 
 from django.conf import settings
 from django.views.generic.base import TemplateView
+from django.views.generic.edit import FormView
 from django.core.urlresolvers import reverse_lazy as reverse
+from django.core.files.storage import default_storage
+from django.core.files.base import ContentFile
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template.response import TemplateResponse
 from django.utils.log import getLogger
 from django.utils.translation import ugettext_lazy as _
 from django.utils.decorators import method_decorator
 from django.utils.html import conditional_escape
+from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.aderit.access_account import _get_model_from_auth_profile_module
@@ -42,8 +47,9 @@ from django.contrib.aderit.send_mail import SendTypeMail, SendTypeMailError
 from django.contrib.aderit.generic_utils.views import \
     (GenericUtilView, GenericProtectedView)
 from django.contrib.aderit.questionnaire_extensions.models import \
-    (RunInfo, Answer, RunInfoHistory, QuestionSet, Question, Choice, Subject)
-import re, random
+    (AccessAccount, Questionnaire, RunInfo, Answer, RunInfoHistory, QuestionSet, Question, Choice, Subject)
+from django.contrib.aderit.questionnaire_extensions.forms import CSVQuestImporterForm
+import re, random, os
 
 logger = getLogger('aderit.questionnaire_extensions.views')
 
@@ -345,7 +351,6 @@ class ShowGraph(TemplateView, GenericProtectedView):
                                     newdiz['Open Answer'] = 1
                                 else:
                                     newdiz['Open Answer'] += 1
-
                             else:
                                 choice = Choice.objects.get(question=ans.question,
                                                             value=anselt)
@@ -363,4 +368,95 @@ class ShowGraph(TemplateView, GenericProtectedView):
                     newdiz_percent[y[0]] = round(float(y[1])/float(len(subjects))*100,
                                                  2)
             lista_percent.append((lista_title, newdiz_percent, i.number))
+        return TemplateResponse(self.request, self.template_name, locals())
+
+class CSVQuestImporterView(FormView, GenericProtectedView):
+    ''' Take a csv file and represent it into an editable table in template 
+    '''
+
+    form_class = CSVQuestImporterForm
+    template_name = 'questionnaire_extensions/csvimporter.html'
+
+    def form_valid(self, form):
+        data = self.request.FILES['csv_import']
+        path = default_storage.save('csv_importers/%s' % data,
+                                    ContentFile(data.read()))
+        tmp_file = os.path.join(settings.MEDIA_ROOT, path)
+        f = open(tmp_file)
+        content_file = []
+        heading_file = ""
+        n = 0
+        for line in f:
+            n += 1
+            if n == 1:
+                heading_file = line.split('","')
+            else:
+                x = line.split('","')
+                diz = {}
+                for n,f in enumerate(x):
+                    diz.update({ heading_file[n].replace('\n','').replace('\r','').replace('"','') : f.replace('\n','').replace('\r','').replace('"','') })
+                content_file.append(diz)
+        os.remove(tmp_file)
+        quests = Questionnaire.objects.all()
+        return TemplateResponse(self.request, self.template_name, locals())
+
+class CSVQuestImporterAddView(GenericProtectedView):
+    ''' Take a table for confirm the importing, showing and managing errors 
+    '''
+
+    template_name = 'questionnaire_extensions/csvimporter.html'
+
+    def post(self, request, *args, **kwargs):
+        i = 1
+        len_record = int(request.POST.get('len_record', 0))
+        quests = request.POST.getlist('quests_selected', [])
+        elements = []
+        content_file = []
+        content_added = []
+        while i <= len_record:
+            diz = {}
+            for y in request.POST.keys():
+                match = re.match(r'(.*)_(\d+)', y)
+                if match and match.groups()[1] == '%s' % str(i):
+                    diz.update({ match.groups()[0] : request.POST.get(y,'') })
+            if diz: elements.append(diz)
+            i += 1
+        for user_dict in elements:
+            if 'email' not in user_dict.keys() or \
+                   'first_name' not in user_dict.keys() or \
+                   'last_name' not in user_dict.keys() or \
+                   'password' not in user_dict.keys():
+                user_dict = ({ 'Error' : _('Formattazione campi sbagliata: modifica file CSV') })
+                content_file.append(user_dict)
+                continue
+            if not user_dict['email']:
+                user_dict.update({ 'Error' : _('Campo Mail obbligatorio') })
+                content_file.append(user_dict)
+                continue
+            elif User.objects.filter(username=user_dict['email']).exists() or \
+                     User.objects.filter(email=user_dict['email']).exists():
+                user_dict.update({ 'Error' : _("Mail gia' esistente") })
+                content_file.append(user_dict)
+                continue
+            else:
+                if user_dict['password']:
+                    psw = user_dict['password']
+                else:
+                    psw = user_dict['email']
+                kw = { 'username' : user_dict['email'],
+                       'email' : user_dict['email'],
+                       'first_name' : user_dict['first_name'],
+                       'last_name' : user_dict['last_name']
+                       }
+                new_user = User.objects.create(**kw)
+                new_user.set_password(psw)
+                new_user.save()
+                set_qid = new_user.get_profile()
+                set_qid.questionnaires = [int(x) for x in quests]
+                user_dict.update({ 'password' : psw })
+                content_added.append(user_dict)
+                continue
+        q_added = Questionnaire.objects.filter(id__in=quests)
+        old_quests = [int(x) for x in quests]
+        quests = Questionnaire.objects.all()
         return TemplateResponse(self.request, self.template_name, locals())

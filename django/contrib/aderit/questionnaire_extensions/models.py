@@ -4,6 +4,8 @@
 #
 # Author: Marco Bardelli <marco.bardelli@aderit.it>,
 #                        <bardelli.marco@gmail.com>
+#         Matteo Atti <matteo.atti@aderit.it>,
+#                     <attuch@gmail.com>
 #
 # This file is part of DjangoContribAderit.
 #
@@ -26,6 +28,7 @@ __copyright__ = '''Copyright (C) 2012 Aderit srl'''
 
 from django.core.exceptions import ImproperlyConfigured
 from django.db.models.signals import pre_save, post_save
+from django.db import models
 from django.db.models import fields as models_fields
 from django.utils.log import getLogger
 
@@ -58,6 +61,9 @@ class AccessAccount(_AccessAccount):
 
     class Meta:
         abstract = True
+
+class CSVQuestImporter(models.Model):
+    csv_import = models.FileField(upload_to='csv_importers/')
 
 class QuestionSet(SQQuestionSet):
     class Meta:

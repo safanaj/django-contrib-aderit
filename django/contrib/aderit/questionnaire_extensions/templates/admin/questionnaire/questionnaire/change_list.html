@@ -54,6 +54,10 @@
 {% block coltype %}flex{% endblock %}
 
 {% block content %}
+<br/>
+<a href="{% url 'csvimporter' %}" title="{% trans "Carica anagrafica utenti" %}">{% trans "Carica anagrafica utenti" %}</a>
+<br/>
+<br/>
   <div id="content-main">
     {% block object-tools %}
       {% if has_add_permission %}
@@ -101,4 +105,5 @@
       </form>
     </div>
   </div>
+
 {% endblock %}

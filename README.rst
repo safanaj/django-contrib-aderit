@@ -24,6 +24,8 @@ Modules:
     to manage template mails via database
  * News (django.contrib.aderit.news):
     a simple app to manage news on sites
+ * Questionnaire_Extensions (django.contrib.aderit.questionnaire_extensions):
+    an app to manage surveys (depends from seantis questionnaire)
 
 More information on `our website <http://www.aderit.it>`_.
 
@@ -38,7 +40,7 @@ Getting Help
 ************
 
 Please send an email to info@aderit.it, or send an email
-directly to bardelli.marco@gmail.com
+directly to bardelli.marco@gmail.com or attuch@gmail.com
 
 *******
 Credits

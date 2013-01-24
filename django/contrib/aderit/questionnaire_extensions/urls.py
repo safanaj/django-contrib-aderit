@@ -28,7 +28,9 @@ from django.conf.urls.defaults import url, patterns
 from django.contrib.aderit.questionnaire_extensions.views import (ShowReport,
                                                                   ExportCsv,
                                                                   SendInvitation,
-                                                                  ShowGraph)
+                                                                  ShowGraph,
+                                                                  CSVQuestImporterView,
+                                                                  CSVQuestImporterAddView)
 from django.utils.log import getLogger
 
 logger = getLogger('aderit.questionnaire_extensions.urls')
@@ -51,4 +53,9 @@ urlpatterns = patterns('',
                            ShowGraph.as_view(template_name="questionnaire/quest_graph.html",
                                              slug_field="id"),
                            name='showgraph'),
+                       url(r'^csvimporter/$',
+                           CSVQuestImporterView.as_view(template_name="questionnaire_extensions/csvimporter.html"),
+                           name='csvimporter'),
+                       url(r'^csvimporteradd/$',
+                           CSVQuestImporterAddView.as_view(), name='csvimporteradd'),
                        )

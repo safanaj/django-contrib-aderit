@@ -1,0 +1,182 @@
+{% load i18n %}
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>{% trans "Admin Questionnaire Importing" %}</title>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+    <link href="{{ STATIC_URL }}css/bootstrap.min.css" rel="stylesheet" />
+    <script type="text/javascript" src="{{ STATIC_URL }}js/bootstrap.js"></script>
+    <script type="text/javascript">
+      $(document).ready(function() {
+          var popovercontent = '<table border"1">';
+          popovercontent += '<tr><td><p>"first_name","last_name","password","email"</p></td></tr>';
+          popovercontent += '<tr><td><p>"Matteo","Atti","xxxxx","attuch@gmail.com"</p></td></tr>';
+          popovercontent += '<tr><td><p>"Luca","Rossi","yyyyy","rossi@example.com"</p></td></tr>';
+          popovercontent += '</table>';
+          $('#popover-example').popover({
+                animation: false,
+                title: '{% trans "Esempio CSV corretto" %}',
+                content: popovercontent,
+                placement: 'bottom',
+                trigger: 'hover'
+          });
+	})
+    </script>
+    <script type="text/javascript">
+      function RemoveTr(val) {
+          $(val).remove();
+      };
+    </script>
+  </head>
+  <body>
+    {% if request.user.is_staff %}
+    <div class="row">
+      <div class="offset1 span5">
+	<h2>{% trans "Importa la tua anagrafica Utenti" %}</h2>
+	<br/>
+	<form action="{% url csvimporter %}" method="POST" enctype="multipart/form-data">{% csrf_token %}
+	  {% for field in form %}
+	  {% for error in field.errors %}
+	  <div class="control-group error">
+	    <span class="help-inline">
+	      <b>{% trans field.label %}: {{ error|escape }}</b>
+	    </span>
+	  </div>
+	  {% endfor %}
+	  {% endfor %}
+	  {# <label for="id_csv_import">Csv import:</label> #}
+	  <input type="file" name="csv_import" id="id_csv_import" />
+	  <br/>
+	  <input class="btn" type="submit" value="{% trans "Carica File" %}"/>
+	</form>
+      </div>
+      <div class="span5">
+	<h2>{% trans "Regole per la struttura del CSV" %}</h2>
+	<p>{% trans "Il csv deve contenere i seguenti campi:" %}</p>
+	<ul>
+	  <li>{% trans "email -> l'indirizzo a cui verr&agrave; spedita la mail (univoca nel sistema);" %}</li>
+	  <li>{% trans "first_name -> nome del destinatario;" %}</li>
+	  <li>{% trans "last_name -> cognome del destinatario;" %}</li>
+	  <li>{% trans "password -> può non essere riempita, in tal caso la sua password sar&agrave; uguale all'email;" %}</li>
+	</ul>
+	<p>{% trans "Il csv deve seguire queste regole strettamente:" %}</p>
+	<ul>
+	  <li>{% trans "utilizzare come separatore di campo la virgola semplice;" %}</li>
+	  <li>{% trans 'delimitare ogni elemento della colonna con i doppi apici<br/>(es. " ... ").' %}</li>
+	</ul>
+	<p style="text-align:center;">
+	  <a class="btn"
+	     id="popover-example">{% trans "Visualizza Esempio" %}</a>
+	</p>
+      </div>
+    </div>
+    <br/>
+    {% if content_file %}
+    <div class="row">
+      <div class="span10 offset1">
+	<hr/>
+	<form action="{% url csvimporteradd %}" method="post">{% csrf_token %}
+	  <h3>{% trans "Seleziona i questionari che ti interessano per questi utenti" %}</h3>
+	  {% for i in quests %}
+	  <input type="checkbox"
+		 name="quests_selected"
+		 id="id_quests_selected_{{ i.id }}"
+		 {% if old_quests %}
+		 {% if i.id in old_quests %}
+		 checked="checked"
+		 {% endif %}
+		 {% endif %}
+		 value="{{ i.id }}" />&nbsp;{{ i.name }}<br/>
+	  {% endfor %}
+	  {% if content_file and content_added %}
+	  <br/>
+	  <div class="control-group error">
+	    <span class="help-inline">
+	      <b>{% trans "Correggi gli errori sottostanti" %}</b>
+	    </span>
+	  </div>
+	  {% endif %}
+	  <table class="table table-striped">
+	    <thead>
+	      {% for i in content_file|first %}
+	      <th>{{ i }}</th>
+	      {% endfor %}
+	      <th>{% trans "Rimuovi" %}</th>
+	    </thead>
+	    {% for i in content_file %}
+	    <tr id="tr_{{ forloop.counter }}">
+	      {% for y,z in i.items %}
+	      {% if y != 'Error' %}
+	      <td>
+		<input type="text"
+		       class="span2"
+		       name="{{y}}_{{forloop.parentloop.counter}}"
+		       id="id_{{y}}_{{forloop.parentloop.counter}}"
+		       value="{{z}}"/>
+	      </td>
+	      {% else %}
+	      <td>
+		<div class="control-group error">
+		  <span class="help-inline">
+		    <b>{{ z }}</b>
+		  </span>
+		</div>
+	      </td>
+	      {% endif %}
+	      {% endfor %}
+	      <td>
+		<a class="btn" href="#" onclick="RemoveTr('#tr_{{ forloop.counter }}');">
+		  <i class="icon-trash"
+		     title="{% trans "Rimuovi tr_" %}{{ forloop.counter }}">
+		  </i>
+		</a>
+	      </td>
+	    </tr>
+	    {% endfor %}
+	  </table>
+	  <br/>
+	  <input type="hidden"
+		 name="len_record"
+		 id="id_len_record"
+		 value="{{ content_file|length }}" />
+	  <input class="btn" type="submit" value="{% trans "Aggiungi Utenti" %}"/>
+	</form>
+      </div>
+    </div>
+    {% endif %}
+
+    {% if content_added %}
+    <div class="row">
+      <div class="span10 offset1">
+	<hr/>
+	<h3>{% trans "Utenti aggiunti correttamente" %}</h3>
+	{% if q_added %}
+	<p>{% trans "Lista questionari associati" %}</p>
+	<ul>
+	{% for i in q_added %}
+	<li>{{ i.name }}</li>
+	{% endfor %}
+	</ul>
+	{% endif %}
+	<table class="table table-striped">
+	  <thead>
+	    {% for i in content_added|first %}
+	    <th>{{ i }}</th>
+	    {% endfor %}
+	  </thead>
+	  {% for i in content_added %}
+	  <tr id="tr_added_{{ forloop.counter }}">
+	    {% for y,z in i.items %}
+	    <td>
+	      <span>{{z}}</span>
+	    </td>
+	    {% endfor %}
+	  </tr>
+	  {% endfor %}
+	</table>
+      </div>
+      {% endif %}
+    </div>
+    {% endif %}
+  </body>
+</html>
