@@ -60,7 +60,7 @@ def get_answers(context):
         answers = question.answer_set.filter(runid=runinfo.runid, subject=runinfo.subject)
         assert(answers.count() == 1)
         for i in answers:
-            return eval(i.answer)
+            return i.split_answer()
     except Exception, e:
         logger.error("get_answers: %s", e)
     return []
