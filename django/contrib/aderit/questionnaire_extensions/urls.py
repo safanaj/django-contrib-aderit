@@ -30,7 +30,8 @@ from django.contrib.aderit.questionnaire_extensions.views import (ShowReport,
                                                                   SendInvitation,
                                                                   ShowGraph,
                                                                   CSVQuestImporterView,
-                                                                  CSVQuestImporterAddView)
+                                                                  CSVQuestImporterAddView,
+                                                                  UploadFileView)
 from django.utils.log import getLogger
 
 logger = getLogger('aderit.questionnaire_extensions.urls')
@@ -58,4 +59,7 @@ urlpatterns = patterns('',
                            name='csvimporter'),
                        url(r'^csvimporteradd/$',
                            CSVQuestImporterAddView.as_view(), name='csvimporteradd'),
+                       url(r'^upload-file/$',
+                           UploadFileView.as_view(template_name="questionnaire/file-upload-form.html"),
+                           name='upload-file'),
                        )

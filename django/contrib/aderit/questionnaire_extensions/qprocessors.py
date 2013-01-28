@@ -92,3 +92,15 @@ def process_date(question, answer):
         return dumps([ans])
     return dumps([])
 add_type('date-select', 'Date [select]')
+
+
+@question_proc('file-upload')
+def question_date(request, question):
+    return {}
+
+@answer_proc('file-upload')
+def process_date(question, answer):
+    return dumps([])
+
+add_type('file-upload', 'File [upload]')
+

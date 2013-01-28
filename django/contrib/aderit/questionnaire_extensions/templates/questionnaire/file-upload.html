@@ -1,0 +1,13 @@
+{% load i18n questionnaire_ext %}
+
+<script type="text/javascript">
+  function UploadFile() {
+  UploadPage=window.open("{% url upload-file %}?qnumb={{ question.number }}&subjid={{ runinfo.subject.id }}&qtext={{ question.text }}","UploadPage", "width=500,height=350");
+}
+</script>
+
+<div class="clearfix">
+  <div class="input">
+    <a href="#" onclick='UploadFile();'>{% trans "Clicca per caricare il file" %}</a>
+  </div>
+</div>

@@ -16,3 +16,9 @@ class CSVQuestImporterForm(forms.ModelForm):
     # def clean(self):
     #     if not str(self.cleaned_data.get('csv_import'))[-4:].upper() == ".CSV":
     #         raise ValidationError(_("File di tipo sbagliato: deve essere *.csv"))
+
+
+class UploadFileForm(forms.Form):
+    subject_id = forms.CharField()
+    question_number = forms.CharField()
+    file_upload = forms.FileField()

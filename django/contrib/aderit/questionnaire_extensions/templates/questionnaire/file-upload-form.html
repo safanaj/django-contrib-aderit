@@ -1,0 +1,32 @@
+{% load i18n %}
+<html>
+  <head>
+    <link href="{{ STATIC_URL }}css/bootstrap.min.css" rel="stylesheet" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="row">
+	<div class="span3 offset1">
+	{% if saved_file %}
+	<h2>{% trans "File caricato correttamente" %}</h2><br/>
+	<p><a href="#" onclick="javascript:window.close();">{% trans "Clicca qui per chiudere la finestra" %}</a></p>
+	{% else %}
+	<h2>{{ request.GET.qtext }}</h2>
+	<form action="{% url upload-file %}" method="POST" enctype="multipart/form-data">{% csrf_token %}
+	  <input type="hidden"
+		 id="id_subject_id_{{ request.GET.subjid }}"
+		 name="subject_id"
+		 value="{{ request.GET.subjid }}">
+	  <input type="hidden"
+		 id="id_question_number_{{ request.GET.qnumb }}"
+		 name="question_number"
+		 value="{{ request.GET.qnumb }}" />
+	  <input type="file" id="id_file_upload_{{ request.GET.qnumb }}" name="file_upload" /><br/>
+	  <input class="btn" type="submit" value="submit" />
+	</form>
+	{% endif %}
+	</div>
+      </div>
+    </div>
+  </body>
+</html>

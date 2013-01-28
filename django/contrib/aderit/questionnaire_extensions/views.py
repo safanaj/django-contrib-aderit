@@ -48,7 +48,7 @@ from django.contrib.aderit.generic_utils.views import \
     (GenericUtilView, GenericProtectedView)
 from django.contrib.aderit.questionnaire_extensions.models import \
     (AccessAccount, Questionnaire, RunInfo, Answer, RunInfoHistory, QuestionSet, Question, Choice, Subject)
-from django.contrib.aderit.questionnaire_extensions.forms import CSVQuestImporterForm
+from django.contrib.aderit.questionnaire_extensions.forms import CSVQuestImporterForm, UploadFileForm
 import re, random, os
 
 logger = getLogger('aderit.questionnaire_extensions.views')
@@ -459,4 +459,22 @@ class CSVQuestImporterAddView(GenericProtectedView):
         q_added = Questionnaire.objects.filter(id__in=quests)
         old_quests = [int(x) for x in quests]
         quests = Questionnaire.objects.all()
+        return TemplateResponse(self.request, self.template_name, locals())
+
+
+
+class UploadFileView(FormView):
+    ''' Take a file and upload it into a correct format 
+    '''
+    
+    form_class = UploadFileForm
+    template_name="questionnaire/file-upload-form.html"
+
+    def form_valid(self, form):
+        qnum = self.request.POST.get('question_number','')
+        subjid = self.request.POST.get('subject_id','')
+        data = self.request.FILES['file_upload']
+        path = default_storage.save('file_uploaded/qnum%s_subj%s_%s' % (qnum, subjid, data),
+                                    ContentFile(data.read()))
+        saved_file = os.path.join(settings.MEDIA_ROOT, path)
         return TemplateResponse(self.request, self.template_name, locals())
