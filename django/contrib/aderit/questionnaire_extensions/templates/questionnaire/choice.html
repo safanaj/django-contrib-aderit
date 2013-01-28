@@ -1,6 +1,16 @@
 {% load i18n questionnaire_ext %}
 {% get_answers as total %}
 
+{% for sel, choice in qdict.choices %}
+{% if choice.value in total %}
+<script type="text/javascript">
+  $(document).ready(function() {
+    valchanged('{{ question.number }}', '{{ choice.value }}');
+  });
+</script>
+{% endif %}
+{% endfor %}
+
 <div class="clearfix">
   <div class="input">
     <ul class="inputs-list">
@@ -12,7 +22,7 @@
 		 name="question_{{ question.number }}"
 		 onClick="valchanged('{{ question.number }}', this.value)"
 		 value="{{ choice.value }}"
-		 {% if choice.value in total %} checked {% endif %} />
+		 {% if choice.value in total %} checked="checked" {% endif %} />
 	  <span>{{ choice.text }}</span>
         </label>
       </li>
