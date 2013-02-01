@@ -122,6 +122,7 @@ class ShowReport(TemplateView, GenericUtilView):
             out.append({'q_numb' : ans.question.number,
                         'q_url' : new_url,
                         'q_head' : ans.question.questionset.heading,
+                        'q_numb_qs' : ans.question.questionset,
                         'q_text' : ans.question.text,
                         'q_answ' : unicode(choiceval),
                         })

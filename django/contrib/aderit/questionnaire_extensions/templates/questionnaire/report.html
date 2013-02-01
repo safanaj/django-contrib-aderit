@@ -24,12 +24,14 @@
 	    </thead>
 	    <tbody>
 	      {% for a in out %}
+	      {% if a.q_numb_qs.sortid <= q_runinfo.questionset.sortid %}
 	      <tr class="odd gradeX">
 		<td>{{a.q_numb}})</td>
 		<td>{{a.q_head}}: {{a.q_text}}</td>
 		<td>{{a.q_answ}}</td>
 		<td><p style="text-align:center;" title="{% trans "Modifica" %}"><a class="btn" href="{{a.q_url}}#qc_{{a.q_numb}}"><i class="icon-edit"></i></a></p></td>
 	      </tr>
+	      {% endif %}
 	      {% endfor %}
 	    </tbody>
 	  </table>
