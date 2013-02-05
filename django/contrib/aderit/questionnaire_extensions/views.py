@@ -33,6 +33,8 @@ from django.views.generic.edit import FormView
 from django.core.urlresolvers import reverse_lazy as reverse
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
+from django.core.validators import validate_email
+from django.core.exceptions import ValidationError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template.response import TemplateResponse
 from django.utils.log import getLogger
@@ -401,6 +403,13 @@ class CSVQuestImporterView(FormView, GenericProtectedView):
         quests = Questionnaire.objects.all()
         return TemplateResponse(self.request, self.template_name, locals())
 
+def validateEmail(email):
+    try:
+        validate_email(email)
+        return True
+    except ValidationError:
+        return False
+
 class CSVQuestImporterAddView(GenericProtectedView):
     ''' Take a table for confirm the importing, showing and managing errors 
     '''
@@ -430,13 +439,13 @@ class CSVQuestImporterAddView(GenericProtectedView):
                 user_dict = ({ 'Error' : _('Formattazione campi sbagliata: modifica file CSV') })
                 content_file.append(user_dict)
                 continue
-            if not user_dict['email']:
-                user_dict.update({ 'Error' : _('Campo Mail obbligatorio') })
+            if not user_dict['email'] or not validateEmail(user_dict['email']):
+                user_dict.update({ 'Error' : _('Campo Email errato') })
                 content_file.append(user_dict)
                 continue
             elif User.objects.filter(username=user_dict['email']).exists() or \
                      User.objects.filter(email=user_dict['email']).exists():
-                user_dict.update({ 'Error' : _("Mail gia' esistente") })
+                user_dict.update({ 'Error' : _("Email gia' esistente") })
                 content_file.append(user_dict)
                 continue
             else:
