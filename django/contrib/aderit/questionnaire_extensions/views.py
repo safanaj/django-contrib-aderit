@@ -49,7 +49,7 @@ from django.contrib.aderit.send_mail import SendTypeMail, SendTypeMailError
 from django.contrib.aderit.generic_utils.views import \
     (GenericUtilView, GenericProtectedView)
 from django.contrib.aderit.questionnaire_extensions.models import \
-    (AccessAccount, Questionnaire, RunInfo, Answer, RunInfoHistory, QuestionSet, Question, Choice, Subject)
+    (AccessAccount, Questionnaire, QuestionnaireMails, RunInfo, Answer, RunInfoHistory, QuestionSet, Question, Choice, Subject)
 from django.contrib.aderit.questionnaire_extensions.forms import CSVQuestImporterForm, UploadFileForm
 import re, random, os
 
@@ -234,7 +234,12 @@ class SendInvitation(GenericProtectedView):
                 new_run.save()
                 logger.debug("creato per %s",  i.givenname)
                 link = Site.objects.get_current().domain + unicode(reverse('questionnaire', args=[randomstr] ))
-                kwargs = {'type': INVITATION_SEND_TYPE_MAIL,
+                try:
+                    type_mail = QuestionnaireMails.objects.get(questionnaire__id=qid).invite_mail.type_mail
+                except Exception, e:
+                    logger.error("Missing QuestionnaireMails invite for questionnaire id %s: %s", qid, e)
+                    type_mail = INVITATION_SEND_TYPE_MAIL
+                kwargs = {'type': type_mail,
                           'mailto': [i.email],
                           i.email : {'user': i.givenname,
                                      'link': link }
@@ -246,7 +251,13 @@ class SendInvitation(GenericProtectedView):
             elif runinfo.count() > 0 and runinfohistory.count() == 0:
                 logger.debug("il soggetto %s deve finire di compilare il questionario %s: inviare il runid associato", i.givenname, qid)
                 link = Site.objects.get_current().domain + unicode(reverse('questionnaire',  args=[runinfo[0].runid] ))
-                kwargs = {'type': REMINDER_SEND_TYPE_MAIL,
+                try:
+                    type_mail = QuestionnaireMails.objects.get(questionnaire__id=qid).remind_mail.type_mail
+                except Exception, e:
+                    logger.error("Missing QuestionnaireMails reminder for questionnaire id %s: %s", qid, e)
+                    type_mail = REMINDER_SEND_TYPE_MAIL
+
+                kwargs = {'type': type_mail,
                           'mailto': [i.email],
                           i.email : {'user': i.givenname,
                                      'link': link}

@@ -28,7 +28,7 @@ from django.contrib import admin
 from django.forms import forms, models as forms_models
 from django.utils.log import getLogger
 from django.contrib.aderit.access_account import _get_model_from_auth_profile_module
-from django.contrib.aderit.questionnaire_extensions.models import Questionnaire
+from django.contrib.aderit.questionnaire_extensions.models import Questionnaire, QuestionnaireMails
 
 logger = getLogger('aderit.questionnaire_extensions.admin')
 
@@ -64,5 +64,13 @@ logger = getLogger('aderit.questionnaire_extensions.admin')
 #         return form_k
 
 
-# admin.site.unregister(Questionnaire)
-# admin.site.register(Questionnaire, QuestionnaireAdmin)
+class QuestionnaireMailsInline(admin.TabularInline):
+    model = QuestionnaireMails
+    max_num = 1
+
+class QuestionnaireAdmin(admin.ModelAdmin):
+    list_display = ('name',)
+    inlines = [QuestionnaireMailsInline]
+
+admin.site.unregister(Questionnaire)
+admin.site.register(Questionnaire, QuestionnaireAdmin)

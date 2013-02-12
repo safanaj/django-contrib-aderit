@@ -47,7 +47,7 @@ for dirpath, dirnames, filenames in os.walk('project_template'):
                            [os.path.join(dirpath, f) for f in filenames]])
 
 setup(name='DjangoContribAderit',
-      version='1.4.6.5',
+      version='1.4.6.6',
       description='Collection of Aderit tools for Django',
       author='Matteo Atti',
       author_email='matteo.atti@aderit.it',

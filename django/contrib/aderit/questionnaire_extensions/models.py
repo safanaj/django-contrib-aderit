@@ -54,6 +54,13 @@ except ImportError:
     raise ImproperlyConfigured('Questionnaire_Extensions by Aderit '
                                'needs AccessAccount for extends it with Subjects')
 
+try:
+    from django.contrib.aderit.send_mail.models import SendMail
+except ImportError:
+    raise ImproperlyConfigured('Questionnaire_Extensions by Aderit '
+                               'needs SendMail for sending invitations')
+
+
 class AccessAccount(_AccessAccount):
     subject = models_fields.related.OneToOneField(Subject, blank=True, null=True)
     questionnaires = models_fields.related.ManyToManyField(Questionnaire,
@@ -84,6 +91,19 @@ class QuestionSet(SQQuestionSet):
                 break
         return previous
 
+
+class QuestionnaireMails(models.Model):
+    questionnaire = models.OneToOneField(Questionnaire)
+    invite_mail = models.ForeignKey(SendMail, related_name="invite_email", blank=True, null=True)
+    remind_mail = models.ForeignKey(SendMail, related_name="remind_email", blank=True, null=True)
+
+    def __unicode__(self):
+        return self.questionnaire.name
+    
+    class Meta:
+        verbose_name = 'Questionnaire Mail'
+        verbose_name_plural = 'Questionnaire Mails'
+        
 
 def create_subject_account(sender, instance, created, **kwargs):
     '''
